@@ -1,4 +1,4 @@
-shiny==0.0.0
+shiny==1.4.0
 pandas==3.0.0
 numpy==2.4.2
 matplotlib==3.10.8
