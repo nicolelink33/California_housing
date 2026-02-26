@@ -58,3 +58,17 @@ flowchart TD
 
 
 ## Section 4: Calculation Details
+Dataset Filtering: 
+This `@reactive.calc` depends on the inputs:
+- `house_val` minimum and maximum - aka Median house value
+- `lat` minimum and maximum - Latitude
+- `lon` minimum and maximum - Longitude
+- `income` minimum and maximum - Median income
+- `age` minimum and maximum - House age
+- `rooms` minimum and maximum - Total number of rooms
+- `beds` minimum and maximum - Total number of bedrooms
+- `pop` minimum and maximum - Population
+- `households` minimum and maximum - Number of households
+- `ocean` - selected categorical value(s) for ocean proximity
+This calculation filters the rows to all selected input values.
+It is consumed by the map visualization, the two KPI value boxes for medain house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot. 
