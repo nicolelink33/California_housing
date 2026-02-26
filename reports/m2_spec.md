@@ -11,16 +11,16 @@
 ## Section 2: Component Inventory
 | ID            | Type          | Shiny widget / renderer   | Depends on                   | Job story  |
 | ------------- | ------------- | -----------------------   | ---------------------------- | ---------- |
-| `house_val`   | Input         | `ui.house_val()`          | —                            | #1, #2, #3     |
-| `lat`         | Input         | `ui.lat()`                | —                            | #1, #2, #3     |
-| `long`        | Input         | `ui.long()`               | —                            | #1, #2, #3     |
-| `income`      | Input         | `ui.income()`             | —                            | #1, #2, #3     |
-| `age`         | Input         | `ui.age()`                | —                            | #1, #2, #3     |
-| `rooms`       | Input         | `ui.rooms()`              | —                            | #1, #2, #3     |
-| `beds`        | Input         | `ui.beds()`               | —                            | #1, #2, #3     |
-| `pop`         | Input         | `ui.pop()`                | —                            | #1, #2, #3     |
-| `households`  | Input         | `ui.households()`         | —                            | #1, #2, #3     |
-| `ocean`       | Input         | `ui.ocean()`              | —                            | #1, #2, #3     |
+| `house_val_slider`   | Input         | `ui.house_val()`          | —                            | #1, #2, #3     |
+| `lat_slider`         | Input         | `ui.lat()`                | —                            | #1, #2, #3     |
+| `long_slider`        | Input         | `ui.long()`               | —                            | #1, #2, #3     |
+| `income_slider`      | Input         | `ui.income()`             | —                            | #1, #2, #3     |
+| `age_slider`         | Input         | `ui.age()`                | —                            | #1, #2, #3     |
+| `rooms_slider`       | Input         | `ui.rooms()`              | —                            | #1, #2, #3     |
+| `beds_slider`        | Input         | `ui.beds()`               | —                            | #1, #2, #3     |
+| `pop_slider`         | Input         | `ui.pop()`                | —                            | #1, #2, #3     |
+| `households_slider`  | Input         | `ui.households()`         | —                            | #1, #2, #3     |
+| `ocean_checkbox`       | Input         | `ui.ocean()`              | —                            | #1, #2, #3     |
 | `dist_type`   | Input         | `ui.dist_type()`          | —                            | #1, #2         |
 | `filtered_df` | Reactive calc | `@reactive.calc`        | `house_val`,`lat`,`long`,`income`,`age`,`rooms`,`beds`,`pop`,`households`,`ocean`,`dist_type` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
@@ -59,16 +59,16 @@ flowchart TD
 
 ## Section 4: Calculation Details
 Dataset Filtering: 
-This `@reactive.calc` depends on the inputs:
-- `house_val` minimum and maximum - aka Median house value
-- `lat` minimum and maximum - Latitude
-- `lon` minimum and maximum - Longitude
-- `income` minimum and maximum - Median income
-- `age` minimum and maximum - House age
-- `rooms` minimum and maximum - Total number of rooms
-- `beds` minimum and maximum - Total number of bedrooms
-- `pop` minimum and maximum - Population
-- `households` minimum and maximum - Number of households
-- `ocean` - selected categorical value(s) for ocean proximity
-This calculation filters the rows to all selected input values.
-It is consumed by the map visualization, the two KPI value boxes for medain house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot. 
+The `@reactive.calc` `filtered_df` depends on the inputs:
+- `house_val_slider` minimum and maximum - aka Median house value
+- `lat_slider` minimum and maximum - Latitude
+- `long_slider` minimum and maximum - Longitude
+- `income_slider` minimum and maximum - Median income
+- `age_slider` minimum and maximum - House age
+- `rooms_slider` minimum and maximum - Total number of rooms
+- `beds_slider` minimum and maximum - Total number of bedrooms
+- `pop_slider` minimum and maximum - Population
+- `households_slider` minimum and maximum - Number of households
+- `ocean_checkbox` - selected categorical value(s) for ocean proximity
+This calculation filters the rows of the raw dataframe to all selected input values.
+It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot. 
