@@ -186,7 +186,7 @@ def server(input, output, session):
 
         df_sample = df_sample.replace([np.inf, -np.inf], np.nan)
         df_sample = df_sample.fillna(0)
-        
+
         # County background layer
         counties = alt.Chart(
             alt.Data(values=counties_geojson["features"])
@@ -213,9 +213,9 @@ def server(input, output, session):
                     title="Median House Value"
                 ),
                 tooltip=[
-                    "county:N",
-                    alt.Tooltip("median_house_value:Q", format=",.0f"),
-                    alt.Tooltip("median_income:Q", format=",.2f")
+                    alt.Tooltip("county:N", title="County"),
+                    alt.Tooltip("median_house_value:Q", title="Median House Value", format=",.0f"),
+                    alt.Tooltip("median_income:Q", title="Median Income (10k USD)", format=",.2f")
                 ]
             )
             #.add_params(brush)
