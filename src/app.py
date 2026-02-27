@@ -184,6 +184,9 @@ def server(input, output, session):
 
         df_sample = df.sample(min(5000, len(df)), random_state=42)
 
+        df_sample = df_sample.replace([np.inf, -np.inf], np.nan)
+        df_sample = df_sample.fillna(0)
+        
         # County background layer
         counties = alt.Chart(
             alt.Data(values=counties_geojson["features"])
