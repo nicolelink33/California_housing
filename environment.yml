@@ -2,21 +2,20 @@ name: dsci-532-dashboard
 channels:
   - conda-forge
 dependencies:
-  - numpy
-  - ipykernel
-  - flask
-  - vega_datasets
-  - altair
-  - plotly
-  - dash
-  - ruff
-  - notebook
-  - pandas
   - python=3.11
-  - jupyterlab
-  - black
-  - vl-convert-python
-  - tabulate
-  - shiny
-  - matplotlib
+  - numpy
+  - pandas
   - scipy
+  - matplotlib
+  - geopandas
+  - altair
+  - vega_datasets
+  - vl-convert-python
+  - shiny
+  - shinywidgets 
+  - ipyleaflet    
+  - ipykernel
+  - jupyterlab
+  - notebook
+  - ruff
+  - tabulate
