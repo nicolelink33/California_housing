@@ -1,118 +1,185 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from shiny.express import input, render, ui
 from scipy.stats import norm
+from shiny import App, reactive, render, ui
+
+# Import dataset
+raw_data = pd.read_csv("data/raw/housing.csv")
 
 # Page configuration
-ui.page_opts(title="California Housing", fillable=True)
-
-# --- SIDEBAR FILTERS ---
-with ui.sidebar(width=300):
-    ui.markdown("### Filter:")
+app_ui = ui.page_fillable(
+    ui.panel_title("California Housing"),
     
-    # Matching the specific sliders in your design
-    ui.input_slider("house_val", "Median house value:", 0, 500000, [150000, 350000])
-    ui.input_slider("lat", "Latitude:", 30, 45, [34, 42])
-    ui.input_slider("long", "Longitude:", -124, -114, [-122, -117])
-    ui.input_slider("income", "Median income:", 0, 15000, [2000, 10000])
-    ui.input_slider("age", "House age:", 1, 52, [10, 30])
-    ui.input_slider("rooms", "Total rooms:", 1, 40000, [5000, 20000])
-    ui.input_slider("beds", "Total bedrooms:", 1, 6000, [1000, 4000])
-    ui.input_slider("pop", "Population:", 1, 40000, [1000, 15000])
-    ui.input_slider("households", "Households:", 1, 6000, [500, 3000])
-    
-    ui.input_radio_buttons(
-        "ocean", "Ocean Proximity:", 
-        ["<1hr Ocean", "Inland", "Near Ocean", "Near Bay", "Island"]
-    )
+    ui.layout_sidebar(
+        # Sidebar inputs
+        ui.sidebar(
+            ui.input_slider(
+                id="house_val_slider",
+                label="Median house value:",
+                min=raw_data.median_house_value.min(),
+                max=raw_data.median_house_value.max(),
+                value=[raw_data.median_house_value.min(), raw_data.median_house_value.max()],
+            ),
+            ui.input_slider(
+                id="lat_slider",
+                label="Latitude:",
+                min=raw_data.latitude.min(),
+                max=raw_data.latitude.max(),
+                value=[raw_data.latitude.min(), raw_data.latitude.max()],
+            ),
+            ui.input_slider(
+                id="long_slider",
+                label="Longitude:",
+                min=raw_data.longitude.min(),
+                max=raw_data.longitude.max(),
+                value=[raw_data.longitude.min(), raw_data.longitude.max()],
+            ),
+            ui.input_slider(
+                id="income_slider",
+                label="Median income:",
+                min=raw_data.median_income.min(),
+                max=raw_data.median_income.max(),
+                value=[raw_data.median_income.min(), raw_data.median_income.max()],
+            ),
+            ui.input_slider(
+                id="age_slider",
+                label="House age:",
+                min=raw_data.housing_median_age.min(),
+                max=raw_data.housing_median_age.max(),
+                value=[raw_data.housing_median_age.min(), raw_data.housing_median_age.max()],
+            ),
+            ui.input_slider(
+                id="rooms_slider",
+                label="Total rooms:",
+                min=raw_data.total_rooms.min(),
+                max=raw_data.total_rooms.max(),
+                value=[raw_data.total_rooms.min(), raw_data.total_rooms.max()],
+            ),
+            ui.input_slider(
+                id="beds_slider",
+                label="Total bedrooms:",
+                min=raw_data.total_bedrooms.min(),
+                max=raw_data.total_bedrooms.max(),
+                value=[raw_data.total_bedrooms.min(), raw_data.total_bedrooms.max()],
+            ),
+            ui.input_slider(
+                id="pop_slider",
+                label="Population:",
+                min=raw_data.population.min(),
+                max=raw_data.population.max(),
+                value=[raw_data.population.min(), raw_data.population.max()],
+            ),
+            ui.input_slider(
+                id="households_slider",
+                label="Households:",
+                min=raw_data.households.min(),
+                max=raw_data.households.max(),
+                value=[raw_data.households.min(), raw_data.households.max()],
+            ),
 
-# --- MAIN CONTENT ---
-with ui.layout_columns(col_widths=[7, 5]):
-
-    with ui.layout_columns(col_widths=12, row_heights=["150px", "1fr"]):
-        # Top Row: KPI Value Boxes
-        with ui.layout_column_wrap(width=1/2):
-            with ui.value_box(theme="light", max_height="150px"):
-                "Median house value"
-                "$12,000"
-                "▲ 12% from state median"
-            
-            with ui.value_box(theme="light", max_height="150px"):
-                "Median income value"
-                "$2,000"
-                "▲ 5% from state median"
-    
-        # Left Column: The Map
-        with ui.card(full_screen=True):
-            @render.plot
-            def house_map():
-                # Placeholder for the scatter plot map
-                fig, ax = plt.subplots(figsize=(8, 8))
-                # Simulated data points
-                x = np.random.uniform(-124, -114, 2000)
-                y = np.random.uniform(33, 42, 2000)
-                colors = np.random.randint(100000, 500000, 2000)
-                
-                sc = ax.scatter(x, y, c=colors, s=2, cmap='viridis', alpha=0.6)
-                plt.colorbar(sc, label='median_house_value', ax=ax, shrink=0.6)
-                ax.set_xlabel("Longitude")
-                ax.set_ylabel("Latitude")
-                ax.grid(True, alpha=0.3)
-                return fig
-
-    # Right Column: Statistics & Distributions
-    with ui.layout_column_wrap(width=1):
-        
-        with ui.card():
-            ui.card_header(
-                ui.div(
-                    "Distribution:", 
-                    ui.input_select("dist_type", None, ["Median House Value", "Income"], width="200px"),
-                    class_="d-flex justify-content-between align-items-center"
-                )
+            ui.input_checkbox_group(
+                id="ocean_checkbox",
+                label="Ocean Proximity:",
+                choices={
+                    "<1H OCEAN": "<1hr Ocean",
+                    "NEAR OCEAN": "Near Ocean",
+                    "NEAR BAY": "Near Bay",
+                    "ISLAND": "Island",
+                    "INLAND": "Inland"
+                },
+                selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"],
             )
-            @render.plot
-            def distribution_plot():
-                # FIX: Plot both on ONE axis
-                fig, ax = plt.subplots(figsize=(5, 3))
-                x = np.linspace(-4, 10, 100)
-                
-                # "Selected" (Greenish/Orange)
-                y1 = norm.pdf(x, 2, 1.5)
-                ax.fill_between(x, y1, color="#A8D695", alpha=0.7, label="Selected")
-                
-                # "State" (Purple)
-                y2 = norm.pdf(x, 5, 2)
-                ax.fill_between(x, y2, color="#B39DDB", alpha=0.6, label="State")
-                
-                # Adding the floating text labels like in the image
-                ax.text(8, 0.15, "Selected", color="green", fontweight='bold')
-                ax.text(8, 0.12, "State", color="purple", fontweight='bold')
-                return fig
+        ),
+        
+        # Page configuration
+        ui.layout_columns(
+            # Column 1
+            ui.column(10,
+                      
+                # Value Boxes
+                ui.row(
+                    ui.column(6, ui.value_box("Median house value", ui.output_text("median_house"))),
+                    ui.column(6, ui.value_box("Median income", ui.output_text("median_income"))),
+                ),
 
-        # Distribution Plots
-        with ui.card():
-            ui.card_header("Comparison: Median Income")
-            @render.plot
-            def comparison_scatter():
-                fig, ax = plt.subplots(figsize=(5, 3))
-                x = np.random.uniform(0, 16, 1000)
-                y = x * 30000 + np.random.normal(0, 50000, 1000)
-                ax.scatter(x, y, s=1, alpha=0.5)
-                ax.set_title("median_house_value vs median_income", fontsize=10)
-                ax.set_xlabel("median_income")
-                ax.set_ylabel("median_house_value")
-                return fig
+                # Map Visualization
+                ui.output_ui("map_output")
+                
+            ),
+            # Column 2
+            ui.column(4,
+                
+                # Distribution Plots
+                ui.row(ui.output_plot("distribution_plot")),
 
-        with ui.card():
-            ui.card_header("Median House Value by Ocean Proximity")
-            @render.plot
-            def boxplot_proximity():
-                fig, ax = plt.subplots(figsize=(5, 2))
-                data = [np.random.normal(i, 1, 100) for i in range(4)]
-                bplot = ax.boxplot(data, patch_artist=True)
-                colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99']
-                for patch, color in zip(bplot['boxes'], colors):
-                    patch.set_facecolor(color)
-                return fig
+                # Comparison Scatterplot
+                ui.row(ui.output_plot("comparison_scatter")),
+
+                # Ocean Proximity Boxplots
+                ui.row(ui.output_plot("boxplot_proximity")),
+            ),
+        ),
+    )
+)
+
+
+def server(input, output, session):
+    # Filter dataset
+    @reactive.calc
+    def filtered_data():
+        idx_house_val = raw_data.median_house_value.between(
+            left=input.house_val_slider()[0], right=input.house_val_slider()[1], inclusive="both"
+        )
+        idx_lat = raw_data.latitude.between(
+            left=input.lat_slider()[0], right=input.lat_slider()[1], inclusive="both"
+        )
+        idx_long = raw_data.longitude.between(
+            left=input.long_slider()[0], right=input.long_slider()[1], inclusive="both"
+        )
+        idx_income = raw_data.median_income.between(
+            left=input.income_slider()[0], right=input.income_slider()[1], inclusive="both"
+        )
+        idx_age = raw_data.housing_median_age.between(
+            left=input.age_slider()[0], right=input.age_slider()[1], inclusive="both"
+        )
+        idx_rooms = raw_data.total_rooms.between(
+            left=input.rooms_slider()[0], right=input.rooms_slider()[1], inclusive="both"
+        )
+        idx_beds = raw_data.total_bedrooms.between(
+            left=input.beds_slider()[0], right=input.beds_slider()[1], inclusive="both"
+        )
+        idx_pop = raw_data.population.between(
+            left=input.pop_slider()[0], right=input.pop_slider()[1], inclusive="both"
+        )
+        idx_households = raw_data.households.between(
+            left=input.households_slider()[0], right=input.households_slider()[1], inclusive="both"
+        )
+        idx_ocean = raw_data.ocean_proximity.isin(input.ocean_checkbox())
+
+        return raw_data[idx_house_val & idx_lat & idx_long & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_ocean]
+
+    # Median House Value
+    @render.text
+    def median_house():
+        median_value = round(filtered_data().median_house_value.median(), 1)
+        return f"${int(median_value):,}"
+
+    # Median Income Value
+    @render.text
+    def median_income():
+        median_inc = round(filtered_data().median_income.median()*10000, 1)
+        return f"${int(median_inc):,}"
+    
+    # Distribution Plots
+
+
+    # Comparison Scatterplot
+
+
+    # Ocean Proximity Boxplot
+
+
+
+
+app = App(app_ui, server)
