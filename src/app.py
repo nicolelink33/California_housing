@@ -1,11 +1,14 @@
-import hashlib
+import altair as alt
 import numpy as np
 import pandas as pd
 import json
 from shiny import App, ui, reactive, render
 from shinywidgets import output_widget, render_widget
-from ipyleaflet import Map, TileLayer, CircleMarker, Popup, GeoJSON
-from ipywidgets import HTML
+# from ipyleaflet import Map, TileLayer, CircleMarker, Popup, GeoJSON
+# from ipywidgets import HTML
+
+# # More efficient for large data sets
+# alt.data_transformers.enable('vegafusion')
 
 # Import dataset
 processed_data = pd.read_csv("data/processed/housing_with_county.csv")
@@ -107,7 +110,7 @@ app_ui = ui.page_fillable(
                 ),
 
                 # Map Visualization
-                output_widget("map_output")
+                output_widget("geo_cluster_plot")
                 
             ),
             # Column 2
@@ -177,85 +180,62 @@ def server(input, output, session):
         median_inc = round(filtered_data().median_income.median()*10000, 1)
         return f"${int(median_inc):,}"
     
-    # Layered Map
     @render_widget
-    def map_output():
+    def geo_cluster_plot():
         df = filtered_data()
-        m = Map(center=(37, -119), zoom=6)
 
-        # Satellite layer (ESRI World Imagery)
-        m.add_layer(TileLayer(
-            url='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            attribution='Esri World Imagery'
-        ))
+        if df.empty:
+            return None
 
-        # Selected counties from dashboard
-        selected_counties = list(input.county_select() or [])
-        selected_counties = [c.strip() for c in selected_counties]
+        df_sample = df.sample(min(5000, len(df)), random_state=42)
 
-        print("Selected:", selected_counties)
-        print("GeoJSON sample:", counties_geojson["features"][0]["properties"]["county"])
-        print("DF sample:", df["county"].iloc[0] if not df.empty else "DF EMPTY")
-
-
-        # Color-blind-friendly palette (Okabe-Ito)
-        color_palette = [
-            "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-            "#0072B2", "#D55E00", "#CC79A7", "#999999"
-        ]
-
-        # Map county names to colors
-        def get_color(county_name):
-            idx = int(hashlib.md5(county_name.encode()).hexdigest(), 16)
-            return color_palette[idx % len(color_palette)]
-        
-
-        # GeoJSON layer with dynamic fill based on selection
-        geo_layer = GeoJSON(
-            data=counties_geojson,
-            style_function=lambda feature: {
-                "color": "white",
-                "fillColor": (
-                    get_color(feature["properties"]["county"])
-                    if len(selected_counties) == 0 or
-                    feature["properties"]["county"].strip() in selected_counties
-                    else "lightgray"
-                ),
-                "fillOpacity": (
-                    0.6
-                    if len(selected_counties) == 0 or
-                    feature["properties"]["county"].strip() in selected_counties
-                    else 0.1
-                ),
-                "weight": 1,
-            }
+        # County background layer
+        counties = alt.Chart(
+            alt.Data(values=counties_geojson["features"])
+        ).mark_geoshape(
+            fill="lightgray",
+            stroke="white",
+            strokeWidth=0.5
+        ).encode(
+            tooltip=alt.value(None)
         )
 
-        m.add_layer(geo_layer)
+        # Housing points layer
+        points = (
+            alt.Chart(df_sample)
+            .mark_circle(opacity=0.35)
+            .encode(
+                longitude="longitude:Q",
+                latitude="latitude:Q",
+                color=alt.Color(
+                    "median_house_value:Q",
+                    scale=alt.Scale(scheme="viridis"),
+                    title="Median House Value"
+                ),
+                tooltip=[
+                    "county:N",
+                    alt.Tooltip("median_house_value:Q", format=",.0f"),
+                    alt.Tooltip("median_income:Q", format=",.2f")
+                ]
+            )
+        )
 
-        # Add sampled points
-        if not df.empty:
-            df_sample = df.sample(min(500, len(df)), random_state=42)
-            for _, row in df_sample.iterrows():
-                circle = CircleMarker(
-                    location=(row.latitude, row.longitude),
-                    radius=5,
-                    color='blue',
-                    fill_color='blue',
-                    fill_opacity=0.5
-                )
-                circle.popup = Popup(
-                    location=(row.latitude, row.longitude),
-                    child=HTML(value=f"County: {row.county}<br>"
-                                    f"Median House Value: ${int(row.median_house_value):,}<br>"
-                                    f"Median Income: ${int(row.median_income*10000):,}"),
-                    close_button=True
-                )
-                m.add(circle)
+        # Combined
+        chart = (
+            (counties + points)
+            .project(type="mercator")
+            .properties(
+                width=700,
+                height=500,
+                title="Geographic Distribution of Housing Values"
+            )
+            .interactive()
+        )
 
-        return m
-    
-        
+        return chart
+
+
+
 
     
     # Distribution Plots
