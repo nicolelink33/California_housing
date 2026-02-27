@@ -4,11 +4,6 @@ import pandas as pd
 import json
 from shiny import App, ui, reactive, render
 from shinywidgets import output_widget, render_widget
-# from ipyleaflet import Map, TileLayer, CircleMarker, Popup, GeoJSON
-# from ipywidgets import HTML
-
-# # More efficient for large data sets
-# alt.data_transformers.enable('vegafusion')
 
 # Import dataset
 processed_data = pd.read_csv("data/processed/housing_with_county.csv")
@@ -199,7 +194,9 @@ def server(input, output, session):
         ).encode(
             tooltip=alt.value(None)
         )
-
+        
+        # brush = alt.selection_interval()
+        
         # Housing points layer
         points = (
             alt.Chart(df_sample)
@@ -218,9 +215,11 @@ def server(input, output, session):
                     alt.Tooltip("median_income:Q", format=",.2f")
                 ]
             )
+            #.add_params(brush)
         )
 
         # Combined
+
         chart = (
             (counties + points)
             .project(type="mercator")
@@ -230,11 +229,11 @@ def server(input, output, session):
                 title="Geographic Distribution of Housing Values"
             )
             .interactive()
+            
+            # .add_selection(zoom)
         )
 
         return chart
-
-
 
 
     
