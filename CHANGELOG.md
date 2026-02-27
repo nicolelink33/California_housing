@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Spatial analysis Jupyter notebook and raw counties geojson and processed housing with counties data by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 * shinywidget, anywidget, ipyleaflet to environment.yml file by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 * shinywidget, geopandas and anywidget to requirement.txt file by [@sjbalagit](https://github.com/sjbalagit) in [#66](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/66)
+* Select county multiselect drop down to app.py by by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 
 ### Changed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 * flask, dash, and plotly from environment.yml by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+* lat and long filters from app.py by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 
 ### Known Issues
 
