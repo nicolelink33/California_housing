@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.2.0] - 2026-02-28
+
+### Added
+
+* shiny, scipy, matplotlib to environment by [@nicolelink33](https://github.com/nicolelink33) in [#29](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/29)
+* Created requirements.txt file by [@nicolelink33](https://github.com/nicolelink33) in [#52](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/52)
+* Dashboard urls to README by [@nicolelink33](https://github.com/nicolelink33) in [#55](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/55)
+* Created m2_spec.md and add job stories by [@nicolelink33](https://github.com/nicolelink33) in [#56](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/56)
+* Calculation details to m2_spec by [@nicolelink33](https://github.com/nicolelink33) in [#58](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/58)
+* Added 2.2 Component Inventory and 2.3 Reactivity Diagram to m2_spec.md by [@mdskwong](https://github.com/mdskwong) in [#59](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/59)
+* Calculation implementation in app.py by [@nicolelink33](https://github.com/nicolelink33) in [#62](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/62)
+* Map visualization in app.py by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+* Spatial analysis Jupyter notebook and raw counties geojson and processed housing with counties data by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+* shinywidget, anywidget, ipyleaflet to environment.yml file by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+* shinywidget, geopandas and anywidget to requirement.txt file by [@sjbalagit](https://github.com/sjbalagit) in [#66](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/66)
+
+### Changed
+
+### Fixed
+
+### Removed
+
+* flask, dash, and plotly from environment.yml by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+
+### Known Issues
+
+### Reflection
 
 ## [0.1.0] - 2026-02-14
 
