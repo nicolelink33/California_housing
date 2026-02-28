@@ -35,23 +35,23 @@
 ````markdown
 ```mermaid
 flowchart TD
-  A[/house_val/] --> K{{filtered_df}}
-  B[/lat/] --> K
-  C[/long/] --> K
-  D[/income/] --> K
-  E[/age/] --> K
-  F[/rooms/] --> K
-  G[/beds/] --> K
-  H[/pop/] --> K
-  I[/households/] --> K
-  J[/ocean/] --> K
-  K --> P1([value_box])
-  K --> P2([value_box])
-  K --> P3([house_map])
-  K --> P5([comparison_scatter])
-  K --> P6([boxplot_proximity])
-  L[/dist_type/] --> P4([distribution_plot])
-  K --> P4
+  A[/house_val_slider/] --> J{{filtered_df}}
+  B[/county_select/] --> J
+  C[/income_slider/] --> J
+  D[/age_slider/] --> J
+  E[/rooms_slider/] --> J
+  F[/beds_slider/] --> J
+  G[/pop_slider/] --> J
+  H[/households_slider/] --> J
+  I[/ocean_checkbox/] --> J
+  J --> P1([median_house])
+  J --> P2([median_income])
+  J --> P3([geo_cluster_plot])
+  J --> P6([boxplot_proximity])
+  K[/distribution_var/] --> P4([distribution_plot])
+  J --> P4
+  L[/comparison_var/] --> P5([comparison_scatter])
+  J --> P5
 ```
 ````
 ![Reactivity Diagram](../img/reactivity.png)
