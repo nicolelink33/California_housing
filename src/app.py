@@ -25,15 +25,15 @@ app_ui = ui.page_fillable(
             padding-right: 0.1rem;
         }
         .plot-card {
-            padding: 0.75rem;
+            padding: 0.1rem;
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
             background: #ffffff;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.1rem;
         }
         @media (max-width: 1200px) {
             .plot-card .shiny-plot-output {
-                height: 230px !important;
+                height: 300px !important;
             }
         }
         @media (max-width: 992px) {
@@ -141,30 +141,42 @@ app_ui = ui.page_fillable(
                 choices=sorted(processed_data["county"].dropna().unique()),
                 selected=[],
                 multiple=True
-            )
+            ),
+
+            width=300
         ),
         
         # Page configuration
         ui.layout_columns(
             # Column 1
-            ui.column(8,
+            ui.layout_columns(
                       
                 # Value Boxes
-                ui.row(
-                    ui.column(6, ui.output_ui("median_house")),
-                    ui.column(6, ui.output_ui("median_income")),
+                ui.layout_column_wrap(
+                    ui.output_ui("median_house"),
+                    ui.output_ui("median_income"),
+                    width=1/2,
+                    heights_equal="all",
+                    fill=True
                 ),
 
                 # Map Visualization
-                output_widget("geo_cluster_plot"),
-                
+                ui.card(
+                    ui.card_header("Geographic Distribution"),
+                    ui.output_ui("geo_cluster_container", fill=True),
+                    output_widget("geo_cluster_plot"),
+                    full_screen=True, # Allows users to expand the map
+                    min_height="720px",
+                ),
+                col_widths=12,
+                # row_heights=["150px", "1fr"],
                 class_="dashboard-panel",
             ),
             # Column 2
-            ui.column(4,
+            ui.layout_column_wrap(
                 
                 # Distribution Plots
-                ui.div(
+                ui.card(
                     ui.input_select(
                         id="distribution_var",
                         label="Distribution:",
@@ -179,12 +191,13 @@ app_ui = ui.page_fillable(
                         },
                         selected="median_house_value",
                     ),
-                    ui.output_plot("distribution_plot", width="100%", height="260px"),
+                    ui.output_plot("distribution_plot"),
+                    min_height="300px",
                     class_="plot-card",
                 ),
 
                 # Comparison Scatterplot
-                ui.div(
+                ui.card(
                     ui.input_select(
                         id="comparison_var",
                         label="Comparison:",
@@ -198,17 +211,22 @@ app_ui = ui.page_fillable(
                         },
                         selected="median_income",
                     ),
-                    ui.output_plot("comparison_scatter", width="100%", height="260px"),
+                    ui.output_plot("comparison_scatter"),
+                    min_height="300px",
                     class_="plot-card",
                 ),
 
                 # Ocean Proximity Boxplots
-                ui.div(
-                    ui.output_plot("boxplot_proximity", width="100%", height="260px"),
+                ui.card(
+                    ui.output_plot("boxplot_proximity"),
+                    min_height="300px",
                     class_="plot-card",
                 ),
+                width=1,
+                min_height="900px",
                 class_="dashboard-panel",
             ),
+            col_widths=[8, 4]
         ),
         
     ),
@@ -427,6 +445,7 @@ def server(input, output, session):
 
         ax.set_xlabel(pretty_names[metric])
         ax.set_ylabel("Density", labelpad=4)
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
         ax.legend(frameon=False, fontsize=8)
         ax.grid(alpha=0.2)
         ax.tick_params(axis="both", labelsize=8)
