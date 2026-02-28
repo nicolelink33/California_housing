@@ -16,6 +16,25 @@ with open("data/raw/cal_counties.geojson") as f:
 app_ui = ui.page_fillable(
     ui.panel_title("California Housing"),
 
+    # CSS styling
+    ui.tags.style("""
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .fillable {
+            padding-bottom: 0 !important;
+        }
+
+        .footer {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-align: center;
+            padding: 4px 0;
+            margin: 0;
+        }
+    """),
 
     ui.layout_sidebar(
         # Sidebar inputs
@@ -121,17 +140,19 @@ app_ui = ui.page_fillable(
                 ui.row(ui.output_plot("boxplot_proximity")),
             ),
         ),
+        
     ),
-    ui.hr(),
-    ui.div(
-        "California Housing: A dashboard that facilitates investigation of California housing prices in 1990.  |  ", 
-        "Authors: Ali Boloor Foroosh, Fu Hung (Teem) Kwong, Nicole Link, Shrabanti Bala Joya  |  ", 
-        ui.a("GitHub Repository",
-             href="https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing",
-             target="_blank"),
-        "  |  Last updated: Feb 28, 2026"
 
-    )
+    ui.div(
+            "California Housing: A dashboard that facilitates investigation of California housing prices in 1990.  |  ", 
+            "Authors: Ali Boloor Foroosh, Fu Hung (Teem) Kwong, Nicole Link, Shrabanti Bala Joya  |  ", 
+            ui.a("GitHub Repository",
+                href="https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing",
+                target="_blank"),
+            "  |  Last updated: Feb 28, 2026",
+            class_="footer"
+            )
+
 )
 
 
