@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * shinywidget, anywidget, ipyleaflet to environment.yml file by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 * shinywidget, geopandas and anywidget to requirement.txt file by [@sjbalagit](https://github.com/sjbalagit) in [#66](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/66)
 * Select county multiselect drop down to app.py by by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
+* Set the layout to align with the sketch design in app.py by [@mdskwong](https://github.com/mdskwong) in [#74](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/74)
+
 
 ### Changed
 * Overhaul dashboard syntax to match lecture notes style by [@nicolelink33](https://github.com/nicolelink33) in [#58](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/58)
