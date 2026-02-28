@@ -22,6 +22,7 @@
 | `ocean_checkbox`       | Input         | `ui.input_checkbox_group()`              | —                            | #1, #2, #3     |
 | `comparison_var`       | Input         | `ui.input_select()`              | —                            | #1, #2, #3     |
 | `distribution_var`   | Input         | `ui.input_select()`          | —                            | #1, #2         |
+| `reset_button`   | Input         | `ui.input_action_button()`          | —                            | #1, #2, #3         |
 | `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
 | `median_income`       | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
@@ -35,6 +36,8 @@
 ````markdown
 ```mermaid
 flowchart TD
+  RB[/reset_button/] -- updates --> A & B & C & D & E & F & G & H & I
+
   A[/house_val_slider/] --> J{{filtered_df}}
   B[/county_select/] --> J
   C[/income_slider/] --> J
