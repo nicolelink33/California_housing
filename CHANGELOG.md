@@ -35,8 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Updated job stories status, component inventory by [@nicolelink33](https://github.com/nicolelink33) in [#70](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/70)
 * Updated Reactivity Diagram to m2_spec.md by [@mdskwong](https://github.com/mdskwong) in [#75](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/75)
 
-### Fixed
-* Layout to align with the sketch design by [@mdskwong](https://github.com/mdskwong) in [#74](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/74)
 
 ### Removed
 * flask, dash, and plotly from environment.yml by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
