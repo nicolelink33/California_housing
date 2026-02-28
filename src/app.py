@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde
 from matplotlib.ticker import FuncFormatter
 from shiny import App, ui, reactive, render
 from shinywidgets import output_widget, render_widget
@@ -351,8 +352,27 @@ def server(input, output, session):
             ax.set_axis_off()
             return fig
 
-        ax.hist(state_vals, bins=35, density=True, alpha=0.45, color="#8e6bbd", label="State")
-        ax.hist(selected_vals, bins=35, density=True, alpha=0.45, color="#9acb5b", label="Selected")
+        x_min = min(state_vals.min(), selected_vals.min())
+        x_max = max(state_vals.max(), selected_vals.max())
+        if x_min == x_max:
+            x_max = x_min + 1.0
+        x_grid = np.linspace(x_min, x_max, 256)
+
+        # Use KDE when variance exists; otherwise fall back to a reference line.
+        if state_vals.nunique() > 1:
+            state_kde = gaussian_kde(state_vals)
+            ax.plot(x_grid, state_kde(x_grid), color="#8e6bbd", linewidth=2, label="State")
+            ax.fill_between(x_grid, state_kde(x_grid), color="#8e6bbd", alpha=0.20)
+        else:
+            ax.axvline(state_vals.iloc[0], color="#8e6bbd", linewidth=2, label="State")
+
+        if selected_vals.nunique() > 1:
+            selected_kde = gaussian_kde(selected_vals)
+            ax.plot(x_grid, selected_kde(x_grid), color="#9acb5b", linewidth=2, label="Selected")
+            ax.fill_between(x_grid, selected_kde(x_grid), color="#9acb5b", alpha=0.20)
+        else:
+            ax.axvline(selected_vals.iloc[0], color="#9acb5b", linewidth=2, label="Selected")
+
         ax.set_xlabel(pretty_names[metric])
         ax.set_ylabel("Density", labelpad=4)
         ax.legend(frameon=False, fontsize=8)
