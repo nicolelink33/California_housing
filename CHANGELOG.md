@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Select county multiselect drop down to app.py by by [@sjbalagit](https://github.com/sjbalagit) in [#64](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/64)
 
 ### Changed
+* Overhaul dashboard syntax to match lecture notes style by [@nicolelink33](https://github.com/nicolelink33) in [#58](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/58)
+
 
 ### Fixed
 
@@ -33,6 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Known Issues
 
 ### Reflection
+#### Fully Implemented Job Stories:
+* Job Story 1: I want to analyze the relationship between median income and median house value so I can determine whether higher income areas were associated with higher property prices in 1990.
+* Job Story 2: I want to compare median house values across ocean proximity categories in order to assess whether coastal access was associated with higher property values in 1990.  
+* Job Story 3: I want to visualize the geographic distribution of house values across California to identify spatial clusters of high and low value regions. 
+
+#### Layout comparison
+Our final layout matches our M1 sketch and M2 spec quite well. A few color choices have changed, to make the plots more visually understandable. We also removed the latitude and longitude slider inputs, and instead gave the user a drop down selection menu to pick which California counties to display. This is a more intuitive, easily accessible way to filter geographically. 
 
 ## [0.1.0] - 2026-02-14
 
