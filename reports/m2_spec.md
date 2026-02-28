@@ -61,8 +61,6 @@ flowchart TD
 Dataset Filtering: 
 The `@reactive.calc` `filtered_df` depends on the inputs:
 - `house_val_slider` minimum and maximum - aka Median house value
-- `lat_slider` minimum and maximum - Latitude
-- `long_slider` minimum and maximum - Longitude
 - `income_slider` minimum and maximum - Median income
 - `age_slider` minimum and maximum - House age
 - `rooms_slider` minimum and maximum - Total number of rooms
@@ -70,5 +68,6 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 - `pop_slider` minimum and maximum - Population
 - `households_slider` minimum and maximum - Number of households
 - `ocean_checkbox` - selected categorical value(s) for ocean proximity
+- `county_select` - selected California counties to include
 This calculation filters the rows of the raw dataframe to all selected input values.
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot. 
