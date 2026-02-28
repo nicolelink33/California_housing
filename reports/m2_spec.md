@@ -3,31 +3,31 @@
 ## Section 1: Job Stories
 | #   | Job Story                       | Status         | Notes                         |
 | --- | ------------------------------- | -------------- | ----------------------------- |
-| 1   | I want to analyze the relationship between median income and median house value so I can determine whether higher income areas were associated with higher property prices in 1990. | ⏳ Pending |                               |
-| 2   | I want to compare median house values across ocean proximity categories in order to assess whether coastal access was associated with higher property values in 1990. | ⏳ Pending     |       |
-| 3   | I want to visualize the geographic distribution of house values across California to identify spatial clusters of high and low value regions.| ⏳ Pending  |                               |
+| 1   | I want to analyze the relationship between median income and median house value so I can determine whether higher income areas were associated with higher property prices in 1990. | ✅ Implemented |  with scatterplot comparing income and house value   |
+| 2   | I want to compare median house values across ocean proximity categories in order to assess whether coastal access was associated with higher property values in 1990. | ✅ Implemented     |  with ocean proximity boxplot  |
+| 3   | I want to visualize the geographic distribution of house values across California to identify spatial clusters of high and low value regions.| ✅ Implemented  |  with map visualization  |
 
 
 ## Section 2: Component Inventory
 | ID            | Type          | Shiny widget / renderer   | Depends on                   | Job story  |
 | ------------- | ------------- | -----------------------   | ---------------------------- | ---------- |
-| `house_val_slider`   | Input         | `ui.house_val()`          | —                            | #1, #2, #3     |
-| `lat_slider`         | Input         | `ui.lat()`                | —                            | #1, #2, #3     |
-| `long_slider`        | Input         | `ui.long()`               | —                            | #1, #2, #3     |
-| `income_slider`      | Input         | `ui.income()`             | —                            | #1, #2, #3     |
-| `age_slider`         | Input         | `ui.age()`                | —                            | #1, #2, #3     |
-| `rooms_slider`       | Input         | `ui.rooms()`              | —                            | #1, #2, #3     |
-| `beds_slider`        | Input         | `ui.beds()`               | —                            | #1, #2, #3     |
-| `pop_slider`         | Input         | `ui.pop()`                | —                            | #1, #2, #3     |
-| `households_slider`  | Input         | `ui.households()`         | —                            | #1, #2, #3     |
-| `ocean_checkbox`       | Input         | `ui.ocean()`              | —                            | #1, #2, #3     |
-| `dist_type`   | Input         | `ui.dist_type()`          | —                            | #1, #2         |
-| `filtered_df` | Reactive calc | `@reactive.calc`        | `house_val`,`lat`,`long`,`income`,`age`,`rooms`,`beds`,`pop`,`households`,`ocean`,`dist_type` | #1, #2, #3 |
+| `house_val_slider`   | Input         | `ui.input_slider()`          | —                            | #1, #2, #3     |
+| `county_select`      | Input         | `ui.input_selectize()`    | —                            | #1, #2, #3     |
+| `income_slider`      | Input         | `ui.input_slider()`             | —                            | #1, #2, #3     |
+| `age_slider`         | Input         | `ui.input_slider()`                | —                            | #1, #2, #3     |
+| `rooms_slider`       | Input         | `ui.input_slider()`              | —                            | #1, #2, #3     |
+| `beds_slider`        | Input         | `ui.input_slider()`               | —                            | #1, #2, #3     |
+| `pop_slider`         | Input         | `ui.input_slider()`                | —                            | #1, #2, #3     |
+| `households_slider`  | Input         | `ui.input_slider()`         | —                            | #1, #2, #3     |
+| `ocean_checkbox`       | Input         | `ui.input_checkbox_group()`              | —                            | #1, #2, #3     |
+| `comparison_var`       | Input         | `ui.input_select()`              | —                            | #1, #2, #3     |
+| `distribution_var`   | Input         | `ui.input_select()`          | —                            | #1, #2         |
+| `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
 | `median_income`       | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
-| `house_map`           | Output        | `@render.plot`          | `filtered_df`                | #3             |
-| `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`dist_type`    | #1, #2         |
-| `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
+| `geo_cluster_plot`    | Output        | `@render_widget`          | `filtered_df`                | #3             |
+| `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`distribution_var`    | #1, #2         |
+| `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`, `comparison_var`        | #1, #2         |
 | `boxplot_proximity`   | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
 
 
