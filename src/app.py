@@ -100,8 +100,8 @@ app_ui = ui.page_fillable(
                       
                 # Value Boxes
                 ui.row(
-                    ui.column(6, ui.value_box("Median house value", ui.output_text("median_house"))),
-                    ui.column(6, ui.value_box("Median income", ui.output_text("median_income"))),
+                    ui.column(6, ui.output_ui("median_house")),
+                    ui.column(6, ui.output_ui("median_income")),
                 ),
 
                 # Map Visualization
@@ -164,16 +164,54 @@ def server(input, output, session):
         return processed_data[idx_house_val & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_households & idx_ocean & idx_county]
 
     # Median House Value
-    @render.text
+    @render.ui
     def median_house():
-        median_value = round(filtered_data().median_house_value.median(), 1)
-        return f"${int(median_value):,}"
+        filt_value = round(filtered_data().median_house_value.median(), 1)
+        state_value = round(processed_data.median_house_value.median(), 1)
+
+        diff = round(((filt_value - state_value) / state_value) * 100, 1)
+        if diff > 0:
+            arrow = "↑"
+        elif diff < 0:
+            arrow = "↓"
+        else: 
+            arrow = ""
+        
+        percent_text = ui.span(
+            f"{arrow} {abs(diff)}% from state median" if arrow else f"{diff}% from state median house value",
+            style="font-size:0.85rem;"
+        )
+
+        return ui.value_box(
+            "Median house value",
+            f"${int(filt_value):,}",
+            percent_text
+        )
 
     # Median Income Value
-    @render.text
+    @render.ui
     def median_income():
-        median_inc = round(filtered_data().median_income.median()*10000, 1)
-        return f"${int(median_inc):,}"
+        filt_value = round(filtered_data().median_income.median() * 10000, 1)
+        state_value = round(processed_data.median_income.median() * 10000, 1)
+
+        diff = round(((filt_value - state_value) / state_value) * 100, 1)
+        if diff > 0:
+            arrow = "↑"
+        elif diff < 0:
+            arrow = "↓"
+        else: 
+            arrow = ""
+        
+        percent_text = ui.span(
+            f"{arrow} {abs(diff)}% from state median" if arrow else f"{diff}% from state median income",
+            style="font-size:0.85rem;"
+        )
+
+        return ui.value_box(
+            "Median income",
+            f"${int(filt_value):,}",
+            percent_text
+        )
     
     @render_widget
     def geo_cluster_plot():
