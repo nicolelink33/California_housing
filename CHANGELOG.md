@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added comparisons to value boxes, add footer to dashboard by [@nicolelink33](https://github.com/nicolelink33) in [#72](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/72)
 * Added CSS styling for dashboard footer by [@sjbalagit](https://github.com/sjbalagit) in [#72](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/72)
 * Added demo and revised README by [@AliBoloor](https://github.com/AliBoloor) in [#76](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/76)
+* Added a reset button to reset all the filters of the sidebar by [@mdskwong](https://github.com/mdskwong) in [#78](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/78)
 
 
 ### Changed
