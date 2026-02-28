@@ -1,51 +1,90 @@
-# California Housing
+# California Housing Dashboard
 
-## About
-This repository contains a data dashboard project that enables investigation of California housing data from 1990. At present, we include the raw dataset from Kaggle, initial exploratory data analysis, and an overall proposal for the dashboard. We intend to include visualizations such as an interactive map to investigate house prices and features by location, as well as both scatter plots to investigate house prices by the age of the house, median income of the households on the same block, proximity to the ocean, and bar plots to investigate house prices by number of bedrooms, number of total rooms, the number of households on the block etc. The intent is both to enable user-directed investigation of California housing prices in the year 1990, and to provide proof of concept of this type of dashboard, which could be adapted for datasets with wider or more modern time ranges.
+An interactive dashboard for exploring the geographic and socioeconomic drivers of housing prices in California (1990).
 
-## Usage
+![Dashboard demo](img/demo.gif)
 
-To run the dashboard locally:
+**Live dashboards**
+- **Stable:** https://019c91e4-9ae2-9f80-d307-5b31052f2781.share.connect.posit.cloud/
+- **Preview:** https://019c91ed-c71c-d6a8-76fc-1417d4c15a89.share.connect.posit.cloud/
 
-1. Clone this repository:
+
+## Why this dashboard exists (for users)
+
+Housing prices vary dramatically across California due to geography, income levels, housing characteristics, and proximity to amenities such as the ocean. This dashboard enables **user-driven exploration** of these relationships using California housing data from 1990.
+
+It is designed to help users:
+- visually investigate spatial patterns in house prices
+- understand how socioeconomic and structural factors relate to price variation
+- identify clusters of high- and low-value regions without writing code
+
+The project also serves as a **proof of concept** for building extensible housing dashboards that could be adapted to more recent or broader datasets.
+
+---
+
+## What you can do with it
+
+- Explore an **interactive map** of median house values by location
+- Investigate relationships between house price and:
+  - median household income
+  - housing age
+  - proximity to the ocean
+- Compare housing characteristics using scatter plots and bar charts
+
+---
+
+## Run locally (for contributors)
+
+### Requirements
+- Conda
+- Python (managed via `environment.yml`)
+- Posit Shiny for Python
+
+### Clone the repository
 
 Using HTTPS:
-
 ```bash
 git clone https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing.git
 ```
 
-Or, using SSH:
-
+Or using SSH:
 ```bash
 git clone git@github.com:UBC-MDS/DSCI-532_2026_5_california_housing.git
 ```
 
 Navigate to the project root:
-
 ```bash
 cd DSCI-532_2026_5_california_housing
 ```
-
-2. Create the environment:
+Create the environment
 
 ```bash
 conda env create -f environment.yml
 conda activate dsci-532-dashboard
 ```
 
-3. Launch the dashboard:
+Launch the dashboard
 
 ```bash
 shiny run --reload src/app.py
 ```
 
-4. Open `http://127.0.0.1:8000` in browser.
+Open http://127.0.0.1:8000 in your browser.
+
+## Contributing
+
+Contributions, issues, and suggestions are welcome.
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or submitting a pull request.
 
 ## Authors
 
-Ali Boloor Foroosh, Fu Hung (Teem) Kwong, Nicole Link, Shrabanti Bala Joya 
+- Ali Boloor Foroosh
+- Fu Hung (Teem) Kwong
+- Nicole Link
+- Shrabanti Bala Joya
 
 ## Attribution
 
-Gen AI tools (Google Gemini, OpenAI ChatGPT, and GitHub Copilot) were used to assist in code generation and documentation drafting. All generated content was reviewed and edited by the human authors to ensure accuracy and quality.
+Generative AI tools (Google Gemini, OpenAI ChatGPT, and GitHub Copilot) were used to assist with code generation and documentation drafting. All generated content was reviewed and edited by the authors to ensure accuracy and quality.
+
