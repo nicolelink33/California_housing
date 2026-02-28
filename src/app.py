@@ -121,6 +121,16 @@ app_ui = ui.page_fillable(
                 ui.row(ui.output_plot("boxplot_proximity")),
             ),
         ),
+    ),
+    ui.hr(),
+    ui.div(
+        "California Housing: A dashboard that facilitates investigation of California housing prices in 1990.  |  ", 
+        "Authors: Ali Boloor Foroosh, Fu Hung (Teem) Kwong, Nicole Link, Shrabanti Bala Joya  |  ", 
+        ui.a("GitHub Repository",
+             href="https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing",
+             target="_blank"),
+        "  |  Last updated: Feb 28, 2026"
+
     )
 )
 
