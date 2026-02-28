@@ -71,6 +71,8 @@ app_ui = ui.page_fillable(
     ui.layout_sidebar(
         # Sidebar inputs
         ui.sidebar(
+            ui.input_action_button("reset_button", "Reset All Filters"),
+
             ui.input_slider(
                 id="house_val_slider",
                 label="Median house value:",
@@ -245,6 +247,25 @@ app_ui = ui.page_fillable(
 
 
 def server(input, output, session):
+
+    @reactive.effect
+    @reactive.event(input.reset_button)
+    def _():
+        # Reset Sliders
+        ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()])
+        ui.update_slider("income_slider", value=[processed_data.median_income.min(), processed_data.median_income.max()])
+        ui.update_slider("age_slider", value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()])
+        ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()])
+        ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()])
+        ui.update_slider("pop_slider", value=[processed_data.population.min(), processed_data.population.max()])
+        ui.update_slider("households_slider", value=[processed_data.households.min(), processed_data.households.max()])
+        
+        # Reset Checkbox Group
+        ui.update_checkbox_group("ocean_checkbox", selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"])
+        
+        # Reset Selectize (County)
+        ui.update_selectize("county_select", selected=[])
+
     # Filter dataset
     @reactive.calc
     def filtered_data():
