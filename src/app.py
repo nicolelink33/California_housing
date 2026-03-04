@@ -7,6 +7,12 @@ from scipy.stats import gaussian_kde
 from matplotlib.ticker import FuncFormatter
 from shiny import App, ui, reactive, render
 from shinywidgets import output_widget, render_widget
+import querychat
+from chatlas import ChatGithub
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(Path(__file__).parent / ".env")
 
 # Import dataset
 processed_data = pd.read_csv("data/processed/housing_with_county.csv")
@@ -14,6 +20,31 @@ processed_data = pd.read_csv("data/processed/housing_with_county.csv")
 # Load california counties geojson
 with open("data/raw/cal_counties.geojson") as f:
     counties_geojson = json.load(f)
+
+# Set up querychat
+qc = querychat.QueryChat(
+    processed_data.copy(),
+    "housing",
+    greeting="""👋 Ask me anything about California housing prices in 1990.
+
+* <span class="suggestion">Show only survivors</span>
+* <span class="suggestion">Filter to women in first class</span>
+* <span class="suggestion">Who paid the highest fare?</span>
+* <span class="suggestion">How many children were aboard?</span>
+""",
+    data_description="""
+Titanic passenger manifest (714 passengers with known age).
+- survived: 1=survived, 0=died
+- pclass: 1=First (luxury), 2=Second, 3=Third (steerage)
+- sex: 'male' or 'female'
+- age: age in years
+- fare: ticket price in pounds
+- alone: True if travelling without family
+- who: 'man', 'woman', or 'child' (under 16)
+""",
+    client=ChatGithub(model="gpt-4.1-mini"),
+)
+
 
 # Page configuration
 app_ui = ui.page_fluid(
@@ -81,7 +112,7 @@ app_ui = ui.page_fluid(
 
     ui.navset_pill(
 
-        # Original Dashboard 
+        # ── Tab 1: Traditional Dashboard ─────────────────────────────────────────
         ui.nav_panel("Manual Filtering", 
 
             ui.layout_sidebar(
@@ -260,13 +291,18 @@ app_ui = ui.page_fluid(
             )
         ),
 
-        ui.nav_panel("AI Chatbot",
-            "AI chat to be inserted here",
-            #import os
-
-            #from dotenv import load_dotenv
-
-            #load_dotenv()  # reads variables from a .env file and sets them in os.environ
+        # ── Tab 2: LLM Chat ───────────────────────────────────────────────────────
+        ui.nav_panel(
+            "AI Chatbot",
+            ui.layout_sidebar(
+                qc.sidebar(),
+                ui.card(
+                    ui.card_header(ui.output_text("chat_title")),
+                    ui.output_data_frame("chat_table"),
+                    fill=True,
+                ),
+                fillable=True,
+            ),
 
 
         ),
@@ -282,7 +318,7 @@ app_ui = ui.page_fluid(
 
 
 def server(input, output, session):
-
+    # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.reset_button)
     def _():
@@ -604,6 +640,16 @@ def server(input, output, session):
         return fig
 
 
+    # ── Tab 2: querychat ──────────────────────────────────────────────────────
+    qc_vals = qc.server()
+
+    @render.text
+    def chat_title():
+        return "placeholder text"
+
+    @render.data_frame
+    def chat_table():
+        return "placeholder dataframe"
 
 
 app = App(app_ui, server)
