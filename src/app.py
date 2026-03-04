@@ -27,20 +27,24 @@ qc = querychat.QueryChat(
     "housing",
     greeting="""👋 Ask me anything about California housing prices in 1990.
 
-* <span class="suggestion">Show only survivors</span>
-* <span class="suggestion">Filter to women in first class</span>
-* <span class="suggestion">Who paid the highest fare?</span>
-* <span class="suggestion">How many children were aboard?</span>
+* <span class="suggestion">Show only houses in San Francisco</span>
+* <span class="suggestion">Filter to houses near the ocean</span>
+* <span class="suggestion">What was the most expensive house in 1990?</span>
+* <span class="suggestion">Which county has the highest median house value?</span>
 """,
     data_description="""
-Titanic passenger manifest (714 passengers with known age).
-- survived: 1=survived, 0=died
-- pclass: 1=First (luxury), 2=Second, 3=Third (steerage)
-- sex: 'male' or 'female'
-- age: age in years
-- fare: ticket price in pounds
-- alone: True if travelling without family
-- who: 'man', 'woman', or 'child' (under 16)
+California housing values in 1990 (aggregated to approximately 20,000 California housing blocks).
+- longitude: longitude in decimal degrees
+- latitude: latitude in decimal degrees
+- ocean_proximity: "<1H ocean", "Near ocean", "Near bay", "Island", or "Inland"
+- housing_median_age: median house age in years
+- total_rooms: total number of rooms on the block
+- total_bedrooms: total number of bedrooms on the block
+- population: total population on the block
+- households: total number of households on the block
+- median_income: median income of the block
+- median_house_value: median house value of the block
+- county: name of the block's county
 """,
     client=ChatGithub(model="gpt-4.1-mini"),
 )
