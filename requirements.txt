@@ -12,4 +12,4 @@ geopandas==1.1.2
 anywidget==0.9.21
 querychat==0.5.1
 chatlas==0.15.2
-python-dotenv==0.9.9
+python-dotenv==1.0.1
