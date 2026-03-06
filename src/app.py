@@ -7,6 +7,12 @@ from scipy.stats import gaussian_kde
 from matplotlib.ticker import FuncFormatter
 from shiny import App, ui, reactive, render
 from shinywidgets import output_widget, render_widget
+import querychat
+from chatlas import ChatGithub
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(Path(__file__).parent / ".env")
 
 # Import dataset
 processed_data = pd.read_csv("data/processed/housing_with_county.csv")
@@ -15,9 +21,37 @@ processed_data = pd.read_csv("data/processed/housing_with_county.csv")
 with open("data/raw/cal_counties.geojson") as f:
     counties_geojson = json.load(f)
 
+# Set up querychat
+qc = querychat.QueryChat(
+    processed_data.copy(),
+    "housing",
+    greeting="""👋 Ask me anything about California housing prices in 1990.
+
+* <span class="suggestion">Show only houses in San Francisco</span>
+* <span class="suggestion">Filter to houses near the ocean</span>
+* <span class="suggestion">What was the most expensive house in 1990?</span>
+* <span class="suggestion">Which county has the highest median house value?</span>
+""",
+    data_description="""
+California housing values in 1990 (aggregated to approximately 20,000 California housing blocks).
+- longitude: longitude in decimal degrees
+- latitude: latitude in decimal degrees
+- ocean_proximity: "<1H ocean", "Near ocean", "Near bay", "Island", or "Inland"
+- housing_median_age: median house age in years
+- total_rooms: total number of rooms on the block
+- total_bedrooms: total number of bedrooms on the block
+- population: total population on the block
+- households: total number of households on the block
+- median_income: median income of the block
+- median_house_value: median house value of the block
+- county: name of the block's county
+""",
+    client=ChatGithub(model="gpt-4.1-mini"),
+)
+
+
 # Page configuration
-app_ui = ui.page_fillable(
-    ui.panel_title("California Housing"),
+app_ui = ui.page_fluid(
     ui.tags.style(
         """
         .dashboard-panel {
@@ -49,16 +83,26 @@ app_ui = ui.page_fillable(
     ),
 
     # CSS styling
+    # ui.tags.style("""
+    #     html, body {
+    #         height: 100%;
+    #         margin: 0;
+    #     }
+
+    #     .fillable {
+    #         padding-bottom: 0 !important;
+    #     }
+
+    #     .footer {
+    #         font-size: 0.75rem;
+    #         color: #6c757d;
+    #         text-align: center;
+    #         padding: 4px 0;
+    #         margin: 0;
+    #     }
+    # """),
+
     ui.tags.style("""
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-
-        .fillable {
-            padding-bottom: 0 !important;
-        }
-
         .footer {
             font-size: 0.75rem;
             color: #6c757d;
@@ -66,174 +110,181 @@ app_ui = ui.page_fillable(
             padding: 4px 0;
             margin: 0;
         }
-    """),
-
-    ui.layout_sidebar(
-        # Sidebar inputs
-        ui.sidebar(
-            ui.input_action_button("reset_button", "Reset All Filters"),
-
-            ui.input_slider(
-                id="house_val_slider",
-                label="Median house value:",
-                min=processed_data.median_house_value.min(),
-                max=processed_data.median_house_value.max(),
-                value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
-            ),
-
-            ui.input_slider(
-                id="income_slider",
-                label="Median income:",
-                min=processed_data.median_income.min(),
-                max=processed_data.median_income.max(),
-                value=[processed_data.median_income.min(), processed_data.median_income.max()],
-            ),
-            ui.input_slider(
-                id="age_slider",
-                label="House age:",
-                min=processed_data.housing_median_age.min(),
-                max=processed_data.housing_median_age.max(),
-                value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
-            ),
-            ui.input_slider(
-                id="rooms_slider",
-                label="Total rooms:",
-                min=processed_data.total_rooms.min(),
-                max=processed_data.total_rooms.max(),
-                value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
-            ),
-            ui.input_slider(
-                id="beds_slider",
-                label="Total bedrooms:",
-                min=processed_data.total_bedrooms.min(),
-                max=processed_data.total_bedrooms.max(),
-                value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
-            ),
-            ui.input_slider(
-                id="pop_slider",
-                label="Population:",
-                min=processed_data.population.min(),
-                max=processed_data.population.max(),
-                value=[processed_data.population.min(), processed_data.population.max()],
-            ),
-            ui.input_slider(
-                id="households_slider",
-                label="Households:",
-                min=processed_data.households.min(),
-                max=processed_data.households.max(),
-                value=[processed_data.households.min(), processed_data.households.max()],
-            ),
-
-            ui.input_checkbox_group(
-                id="ocean_checkbox",
-                label="Ocean Proximity:",
-                choices={
-                    "<1H OCEAN": "<1hr Ocean",
-                    "NEAR OCEAN": "Near Ocean",
-                    "NEAR BAY": "Near Bay",
-                    "ISLAND": "Island",
-                    "INLAND": "Inland"
-                },
-                selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"],
-            ),
-
-            ui.input_selectize(
-                id="county_select",
-                label="Select County:",
-                choices=sorted(processed_data["county"].dropna().unique()),
-                selected=[],
-                multiple=True
-            ),
-
-            width=300
-        ),
-        
-        # Page configuration
-        ui.layout_columns(
-            # Column 1
-            ui.layout_columns(
-                      
-                # Value Boxes
-                ui.layout_column_wrap(
-                    ui.output_ui("median_house"),
-                    ui.output_ui("median_income"),
-                    width=1/2,
-                    heights_equal="all",
-                    fill=True
-                ),
-
-                # Map Visualization
-                ui.card(
-                    ui.card_header("Geographic Distribution"),
-                    ui.output_ui("geo_cluster_container", fill=True),
-                    output_widget("geo_cluster_plot"),
-                    full_screen=True, # Allows users to expand the map
-                    min_height="720px",
-                ),
-                col_widths=12,
-                # row_heights=["150px", "1fr"],
-                class_="dashboard-panel",
-            ),
-            # Column 2
-            ui.layout_column_wrap(
-                
-                # Distribution Plots
-                ui.card(
-                    ui.input_select(
-                        id="distribution_var",
-                        label="Distribution:",
-                        choices={
-                            "median_house_value": "Median House Value",
-                            "median_income": "Median Income",
-                            "housing_median_age": "House Age",
-                            "total_rooms": "Total Rooms",
-                            "total_bedrooms": "Total Bedrooms",
-                            "population": "Population",
-                            "households": "Households",
-                        },
-                        selected="median_house_value",
-                    ),
-                    ui.output_plot("distribution_plot"),
-                    min_height="300px",
-                    class_="plot-card",
-                ),
-
-                # Comparison Scatterplot
-                ui.card(
-                    ui.input_select(
-                        id="comparison_var",
-                        label="Comparison:",
-                        choices={
-                            "median_income": "Median Income",
-                            "housing_median_age": "House Age",
-                            "total_rooms": "Total Rooms",
-                            "total_bedrooms": "Total Bedrooms",
-                            "population": "Population",
-                            "households": "Households",
-                        },
-                        selected="median_income",
-                    ),
-                    ui.output_plot("comparison_scatter"),
-                    min_height="300px",
-                    class_="plot-card",
-                ),
-
-                # Ocean Proximity Boxplots
-                ui.card(
-                    ui.output_plot("boxplot_proximity"),
-                    min_height="300px",
-                    class_="plot-card",
-                ),
-                width=1,
-                min_height="900px",
-                class_="dashboard-panel",
-            ),
-            col_widths=[8, 4]
-        ),
-        
+    """
     ),
+    ui.panel_title("California Housing"),
 
-    ui.div(
+    ui.navset_pill(
+
+        # ── Tab 1: Traditional Dashboard ─────────────────────────────────────────
+        ui.nav_panel("Manual Filtering", 
+
+            ui.layout_sidebar(
+                # Sidebar inputs
+                ui.sidebar(
+                    ui.input_action_button("reset_button", "Reset All Filters"),
+
+                    ui.input_slider(
+                        id="house_val_slider",
+                        label="Median house value:",
+                        min=processed_data.median_house_value.min(),
+                        max=processed_data.median_house_value.max(),
+                        value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
+                    ),
+
+                    ui.input_slider(
+                        id="income_slider",
+                        label="Median income:",
+                        min=processed_data.median_income.min(),
+                        max=processed_data.median_income.max(),
+                        value=[processed_data.median_income.min(), processed_data.median_income.max()],
+                    ),
+                    ui.input_slider(
+                        id="age_slider",
+                        label="House age:",
+                        min=processed_data.housing_median_age.min(),
+                        max=processed_data.housing_median_age.max(),
+                        value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
+                    ),
+                    ui.input_slider(
+                        id="rooms_slider",
+                        label="Total rooms:",
+                        min=processed_data.total_rooms.min(),
+                        max=processed_data.total_rooms.max(),
+                        value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
+                    ),
+                    ui.input_slider(
+                        id="beds_slider",
+                        label="Total bedrooms:",
+                        min=processed_data.total_bedrooms.min(),
+                        max=processed_data.total_bedrooms.max(),
+                        value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
+                    ),
+                    ui.input_slider(
+                        id="pop_slider",
+                        label="Population:",
+                        min=processed_data.population.min(),
+                        max=processed_data.population.max(),
+                        value=[processed_data.population.min(), processed_data.population.max()],
+                    ),
+                    ui.input_slider(
+                        id="households_slider",
+                        label="Households:",
+                        min=processed_data.households.min(),
+                        max=processed_data.households.max(),
+                        value=[processed_data.households.min(), processed_data.households.max()],
+                    ),
+
+                    ui.input_checkbox_group(
+                        id="ocean_checkbox",
+                        label="Ocean Proximity:",
+                        choices={
+                            "<1H OCEAN": "<1hr Ocean",
+                            "NEAR OCEAN": "Near Ocean",
+                            "NEAR BAY": "Near Bay",
+                            "ISLAND": "Island",
+                            "INLAND": "Inland"
+                        },
+                        selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"],
+                    ),
+
+                    ui.input_selectize(
+                        id="county_select",
+                        label="Select County:",
+                        choices=sorted(processed_data["county"].dropna().unique()),
+                        selected=[],
+                        multiple=True
+                    ),
+
+                    width=300
+                ),
+                
+                # Page configuration
+                ui.layout_columns(
+                    # Column 1
+                    ui.layout_columns(
+                            
+                        # Value Boxes
+                        ui.layout_column_wrap(
+                            ui.output_ui("median_house"),
+                            ui.output_ui("median_income"),
+                            width=1/2,
+                            heights_equal="all",
+                            fill=True
+                        ),
+
+                        # Map Visualization
+                        ui.card(
+                            ui.card_header("Geographic Distribution"),
+                            ui.output_ui("geo_cluster_container", fill=True),
+                            output_widget("geo_cluster_plot"),
+                            full_screen=True, # Allows users to expand the map
+                            min_height="720px",
+                            #fill=True,
+                        ),
+                        col_widths=12,
+                        # row_heights=["150px", "1fr"],
+                        class_="dashboard-panel",
+                    ),
+                    # Column 2
+                    ui.layout_column_wrap(
+                        
+                        # Distribution Plots
+                        ui.card(
+                            ui.input_select(
+                                id="distribution_var",
+                                label="Distribution:",
+                                choices={
+                                    "median_house_value": "Median House Value",
+                                    "median_income": "Median Income",
+                                    "housing_median_age": "House Age",
+                                    "total_rooms": "Total Rooms",
+                                    "total_bedrooms": "Total Bedrooms",
+                                    "population": "Population",
+                                    "households": "Households",
+                                },
+                                selected="median_house_value",
+                            ),
+                            ui.output_plot("distribution_plot"),
+                            min_height="200px",
+                            class_="plot-card",
+                        ),
+
+                        # Comparison Scatterplot
+                        ui.card(
+                            ui.input_select(
+                                id="comparison_var",
+                                label="Comparison:",
+                                choices={
+                                    "median_income": "Median Income",
+                                    "housing_median_age": "House Age",
+                                    "total_rooms": "Total Rooms",
+                                    "total_bedrooms": "Total Bedrooms",
+                                    "population": "Population",
+                                    "households": "Households",
+                                },
+                                selected="median_income",
+                            ),
+                            ui.output_plot("comparison_scatter"),
+                            min_height="200px",
+                            class_="plot-card",
+                        ),
+
+                        # Ocean Proximity Boxplots
+                        ui.card(
+                            ui.output_plot("boxplot_proximity"),
+                            min_height="200px",
+                            class_="plot-card",
+                        ),
+                        width=1,
+                        #min_height="900px",
+                        class_="dashboard-panel",
+                    ),
+                    col_widths=[8, 4]
+                ),
+                
+            ),
+            ui.div(
             "California Housing: A dashboard that facilitates investigation of California housing prices in 1990.  |  ", 
             "Authors: Ali Boloor Foroosh, Fu Hung (Teem) Kwong, Nicole Link, Shrabanti Bala Joya  |  ", 
             ui.a("GitHub Repository",
@@ -242,12 +293,36 @@ app_ui = ui.page_fillable(
             "  |  Last updated: Feb 28, 2026",
             class_="footer"
             )
+        ),
+
+        # ── Tab 2: LLM Chat ───────────────────────────────────────────────────────
+        ui.nav_panel(
+            "AI Chatbot",
+            ui.layout_sidebar(
+                qc.sidebar(),
+                ui.card(
+                    ui.card_header(ui.output_text("chat_title")),
+                    ui.output_data_frame("chat_table"),
+                    fill=True,
+                ),
+                fillable=True,
+            ),
+
+
+        ),
+
+        id="tab",
+        
+        #ui.nav_menu(
+        #    
+        #)
+    ),
 
 )
 
 
 def server(input, output, session):
-
+    # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.reset_button)
     def _():
@@ -569,6 +644,16 @@ def server(input, output, session):
         return fig
 
 
+    # ── Tab 2: querychat ──────────────────────────────────────────────────────
+    qc_vals = qc.server()
+
+    @render.text
+    def chat_title():
+        return "placeholder text"
+
+    @render.data_frame
+    def chat_table():
+        return "placeholder dataframe"
 
 
 app = App(app_ui, server)

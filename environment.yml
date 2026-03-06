@@ -20,3 +20,9 @@ dependencies:
   - ruff
   - tabulate
   - anywidget
+  - pip
+
+  - pip:
+      - querychat==0.5.1
+      - chatlas==0.15.2
+      - python-dotenv==0.9.9
