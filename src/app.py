@@ -12,6 +12,7 @@ from chatlas import ChatGithub
 from dotenv import load_dotenv
 from pathlib import Path
 
+
 load_dotenv(Path(__file__).parent / ".env")
 
 # Import dataset
@@ -430,6 +431,19 @@ def server(input, output, session):
     def geo_cluster_plot():
         df = filtered_data()
 
+        min_lon, max_lon = df["longitude"].min(), df["longitude"].max()
+        min_lat, max_lat = df["latitude"].min(), df["latitude"].max()
+
+        center_lon = (min_lon + max_lon) / 2
+        center_lat = (min_lat + max_lat) / 2
+
+        lon_span = max_lon - min_lon
+        lat_span = max_lat - min_lat
+        span = max(lon_span, lat_span)
+
+        scale = 1200 / span
+        scale = min(max(scale, 2500), 12000)
+
         if df.empty:
             return None
 
@@ -476,11 +490,14 @@ def server(input, output, session):
 
         chart = (
             (counties + points)
-            .project(type="mercator")
+            .project(
+                type="mercator",
+                center=[center_lon, center_lat],
+                scale=scale
+            )
             .properties(
                 width="container",
-                height=420,
-                title="Geographic Distribution of Housing Values"
+                height=420
             )
             .interactive()
             
