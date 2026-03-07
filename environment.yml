@@ -12,8 +12,7 @@ dependencies:
   - vega_datasets
   - vl-convert-python
   - shiny
-  - shinywidgets 
-  - ipyleaflet    
+  - shinywidgets   
   - ipykernel
   - jupyterlab
   - notebook
@@ -25,4 +24,5 @@ dependencies:
   - pip:
       - querychat==0.5.1
       - chatlas==0.15.2
-      - python-dotenv==0.9.9
+      - python-dotenv==1.0.1
+      - folium==0.19.6
