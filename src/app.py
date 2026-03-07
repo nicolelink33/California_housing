@@ -92,9 +92,11 @@ app_ui = ui.page_fluid(
             font-size: 0.75rem;
             color: #6c757d;
             text-align: center;
-            padding: 4px 0;
+            padding: 2px 0;
             margin: 0;
+            line-height: 1.2;
         }
+        
     """
     ),
     ui.panel_title(
@@ -260,10 +262,10 @@ app_ui = ui.page_fluid(
                                 label="Comparison:",
                                 choices={
                                     "median_income": "Median Income",
-                                    "housing_median_age": "House Age",
+                                    #"housing_median_age": "House Age",
                                     "total_rooms": "Total Rooms",
-                                    "total_bedrooms": "Total Bedrooms",
-                                    "population": "Population",
+                                    #"total_bedrooms": "Total Bedrooms",
+                                    #"population": "Population",
                                     "households": "Households",
                                 },
                                 selected="median_income",
@@ -529,6 +531,7 @@ def server(input, output, session):
         df = filtered_data()
         metric = input.distribution_var()
         fig, ax = plt.subplots(figsize=(5.0, 2.6))
+        ax.ticklabel_format(axis='y', style='plain')
 
         pretty_names = {
             "median_house_value": "Median House Value",
@@ -576,6 +579,7 @@ def server(input, output, session):
         ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
         ax.legend(frameon=False, fontsize=8)
         ax.grid(alpha=0.2)
+        ax.yaxis.offsetText.set_visible(False)
         ax.tick_params(axis="both", labelsize=8)
         fig.subplots_adjust(left=0.22, right=0.98, top=0.95, bottom=0.22)
         return fig
