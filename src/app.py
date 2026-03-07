@@ -96,7 +96,7 @@ app_ui = ui.page_fluid(
     ui.panel_title(
         ui.div(
             ui.h1("California Housing Dashboard"),
-            ui.p("Explore how proximity to the ocean and household income related to housing prices across California in 1990.",
+            ui.p("Explore how proximity to the ocean and household income related to housing prices across California in 1990 using census block-level housing data.",
             style="font-size:0.95rem; color:#555; margin-bottom:20px;"
             )
         )
