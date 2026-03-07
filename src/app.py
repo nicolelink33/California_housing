@@ -284,10 +284,7 @@ app_ui = ui.page_fluid(
                 ui.card(
                     ui.card_header(ui.output_text("chat_title")),
                     ui.output_data_frame("chat_table"),
-                    ui.download_button(
-                        id="download_querychat_filtered_df",
-                        label="Download Filtered Data (CSV)",
-                    ),
+                    ui.output_ui("download_button_ui"),
                     fill=True,
                 ),
                 fillable=True,
@@ -634,9 +631,21 @@ def server(input, output, session):
 
     @reactive.calc
     def querychat_filtered_df():
-        return qc_vals.filtered_df # placeholder for reactive dataframe output from querychat
+        return processed_data.head(10) # placeholder for reactive querychat filtered df 
     
-    @render.download(filename="california_housing.csv")
+    @render.ui
+    def download_button_ui():
+        df = querychat_filtered_df()
+
+        if df is None or df.empty:
+            return None  # hide button if no data
+
+        return ui.download_button(
+            id="download_querychat_filtered_df",
+            label="Download Filtered Data (CSV)"
+        )
+
+    @render.download(filename="california_housing_filtered.csv")
     def download_querychat_filtered_df():
         df = querychat_filtered_df()
 
