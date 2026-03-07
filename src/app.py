@@ -123,9 +123,10 @@ app_ui = ui.page_fluid(
                     ui.input_slider(
                         id="income_slider",
                         label="Median income:",
-                        min=processed_data.median_income.min(),
-                        max=processed_data.median_income.max(),
+                        min=round(processed_data.median_income.min(), 2),
+                        max=round(processed_data.median_income.max(), 2),
                         value=[round(processed_data.median_income.quantile(0.75),2) , round(processed_data.median_income.max(), 2)],
+                        step=0.01,
                     ),
                     ui.input_slider(
                         id="age_slider",
@@ -133,6 +134,7 @@ app_ui = ui.page_fluid(
                         min=processed_data.housing_median_age.min(),
                         max=processed_data.housing_median_age.max(),
                         value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
+                        step=1,
                     ),
                     ui.input_slider(
                         id="rooms_slider",
@@ -140,6 +142,7 @@ app_ui = ui.page_fluid(
                         min=processed_data.total_rooms.min(),
                         max=processed_data.total_rooms.max(),
                         value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
+                        step=1,
                     ),
                     ui.input_slider(
                         id="beds_slider",
@@ -147,6 +150,7 @@ app_ui = ui.page_fluid(
                         min=processed_data.total_bedrooms.min(),
                         max=processed_data.total_bedrooms.max(),
                         value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
+                        step=1,
                     ),
                     ui.input_slider(
                         id="pop_slider",
@@ -154,6 +158,7 @@ app_ui = ui.page_fluid(
                         min=processed_data.population.min(),
                         max=processed_data.population.max(),
                         value=[processed_data.population.min(), processed_data.population.max()],
+                        step=1,
                     ),
                     ui.input_slider(
                         id="households_slider",
@@ -161,6 +166,7 @@ app_ui = ui.page_fluid(
                         min=processed_data.households.min(),
                         max=processed_data.households.max(),
                         value=[processed_data.households.min(), processed_data.households.max()],
+                        step=1,
                     ),
 
                     ui.input_checkbox_group(
