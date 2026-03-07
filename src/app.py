@@ -125,7 +125,7 @@ app_ui = ui.page_fluid(
                         label="Median income:",
                         min=processed_data.median_income.min(),
                         max=processed_data.median_income.max(),
-                        value=[round(processed_data.median_income.quantile(0.75),2), round(processed_data.median_income.max(), 2)],
+                        value=[round(processed_data.median_income.quantile(0.75),2) , round(processed_data.median_income.max(), 2)],
                     ),
                     ui.input_slider(
                         id="age_slider",
@@ -317,7 +317,7 @@ def server(input, output, session):
     def _():
         # Reset Sliders
         ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()])
-        ui.update_slider("income_slider", value=[processed_data.median_income.min(), processed_data.median_income.max()])
+        ui.update_slider("income_slider", value=[round(processed_data.median_income.quantile(0.75), 2), round(processed_data.median_income.max(), 2)])
         ui.update_slider("age_slider", value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()])
         ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()])
         ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()])
@@ -325,7 +325,7 @@ def server(input, output, session):
         ui.update_slider("households_slider", value=[processed_data.households.min(), processed_data.households.max()])
         
         # Reset Checkbox Group
-        ui.update_checkbox_group("ocean_checkbox", selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"])
+        ui.update_checkbox_group("ocean_checkbox", selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"])
         
         # Reset Selectize (County)
         ui.update_selectize("county_select", selected=[])
