@@ -93,7 +93,14 @@ app_ui = ui.page_fluid(
         }
     """
     ),
-    ui.panel_title("California Housing"),
+    ui.panel_title(
+        ui.div(
+            ui.h1("California Housing Dashboard"),
+            ui.p("Explore how proximity to the ocean and household income related to housing prices across California in 1990.",
+            style="font-size:0.95rem; color:#555; margin-bottom:20px;"
+            )
+        )
+    ),
 
     ui.navset_pill(
 
@@ -118,7 +125,7 @@ app_ui = ui.page_fluid(
                         label="Median income:",
                         min=processed_data.median_income.min(),
                         max=processed_data.median_income.max(),
-                        value=[processed_data.median_income.min(), processed_data.median_income.max()],
+                        value=[round(processed_data.median_income.quantile(0.75),2), round(processed_data.median_income.max(), 2)],
                     ),
                     ui.input_slider(
                         id="age_slider",
@@ -166,7 +173,7 @@ app_ui = ui.page_fluid(
                             "ISLAND": "Island",
                             "INLAND": "Inland"
                         },
-                        selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY", "ISLAND", "INLAND"],
+                        selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"],
                     ),
 
                     ui.input_selectize(
