@@ -114,90 +114,91 @@ app_ui = ui.page_fluid(
                 # Sidebar inputs
                 ui.sidebar(
                     ui.input_action_button("reset_button", "Reset All Filters"),
-                    ui.hr(),
-
-                    # ── House properties ──
-                    ui.h6("House Properties", class_="mt-2 mb-1"),
-                    ui.input_slider(
-                        id="house_val_slider",
-                        label="Median house value:",
-                        min=processed_data.median_house_value.min(),
-                        max=processed_data.median_house_value.max(),
-                        value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
+                    ui.accordion(
+                        ui.accordion_panel(
+                            "House Properties",
+                            ui.input_slider(
+                                id="house_val_slider",
+                                label="Median house value:",
+                                min=processed_data.median_house_value.min(),
+                                max=processed_data.median_house_value.max(),
+                                value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
+                            ),
+                            ui.input_slider(
+                                id="age_slider",
+                                label="House age:",
+                                min=processed_data.housing_median_age.min(),
+                                max=processed_data.housing_median_age.max(),
+                                value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
+                                step=1,
+                            ),
+                            ui.input_slider(
+                                id="rooms_slider",
+                                label="Total rooms:",
+                                min=processed_data.total_rooms.min(),
+                                max=processed_data.total_rooms.max(),
+                                value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
+                                step=1,
+                            ),
+                            ui.input_slider(
+                                id="beds_slider",
+                                label="Total bedrooms:",
+                                min=processed_data.total_bedrooms.min(),
+                                max=processed_data.total_bedrooms.max(),
+                                value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
+                                step=1,
+                            ),
+                            ui.input_checkbox_group(
+                                id="ocean_checkbox",
+                                label="Ocean Proximity:",
+                                choices={
+                                    "<1H OCEAN": "<1hr Ocean",
+                                    "NEAR OCEAN": "Near Ocean",
+                                    "NEAR BAY": "Near Bay",
+                                    "ISLAND": "Island",
+                                    "INLAND": "Inland"
+                                },
+                                selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"],
+                            ),
+                            ui.input_selectize(
+                                id="county_select",
+                                label="County:",
+                                choices=sorted(processed_data["county"].dropna().unique()),
+                                selected=[],
+                                multiple=True
+                            ),
+                        ),
+                        ui.accordion_panel(
+                            "Socio-economic",
+                            ui.input_slider(
+                                id="income_slider",
+                                label="Median income:",
+                                min=round(processed_data.median_income_usd.min(), 2),
+                                max=round(processed_data.median_income_usd.max(), 2),
+                                value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)],
+                                step=0.01,
+                            ),
+                            ui.input_slider(
+                                id="pop_slider",
+                                label="Population:",
+                                min=processed_data.population.min(),
+                                max=processed_data.population.max(),
+                                value=[processed_data.population.min(), processed_data.population.max()],
+                                step=1,
+                            ),
+                            ui.input_slider(
+                                id="households_slider",
+                                label="Households:",
+                                min=processed_data.households.min(),
+                                max=processed_data.households.max(),
+                                value=[processed_data.households.min(), processed_data.households.max()],
+                                step=1,
+                            ),
+                        ),
+                        id="filters_accordion",
+                        open=True,
+                        multiple=True,
                     ),
-                    ui.input_slider(
-                        id="age_slider",
-                        label="House age:",
-                        min=processed_data.housing_median_age.min(),
-                        max=processed_data.housing_median_age.max(),
-                        value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
-                        step=1,
-                    ),
-                    ui.input_slider(
-                        id="rooms_slider",
-                        label="Total rooms:",
-                        min=processed_data.total_rooms.min(),
-                        max=processed_data.total_rooms.max(),
-                        value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
-                        step=1,
-                    ),
-                    ui.input_slider(
-                        id="beds_slider",
-                        label="Total bedrooms:",
-                        min=processed_data.total_bedrooms.min(),
-                        max=processed_data.total_bedrooms.max(),
-                        value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
-                        step=1,
-                    ),
-                    ui.input_checkbox_group(
-                        id="ocean_checkbox",
-                        label="Ocean Proximity:",
-                        choices={
-                            "<1H OCEAN": "<1hr Ocean",
-                            "NEAR OCEAN": "Near Ocean",
-                            "NEAR BAY": "Near Bay",
-                            "ISLAND": "Island",
-                            "INLAND": "Inland"
-                        },
-                        selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"],
-                    ),
-                    ui.input_selectize(
-                        id="county_select",
-                        label="County:",
-                        choices=sorted(processed_data["county"].dropna().unique()),
-                        selected=[],
-                        multiple=True
-                    ),
-
-                    ui.hr(),
-
-                    # ── Socio-economic ──
-                    ui.h6("Socio-economic", class_="mt-2 mb-1"),
-                    ui.input_slider(
-                        id="income_slider",
-                        label="Median income:",
-                        min=round(processed_data.median_income_usd.min(), 2),
-                        max=round(processed_data.median_income_usd.max(), 2),
-                        value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)],
-                        step=0.01,
-                    ),
-                    ui.input_slider(
-                        id="pop_slider",
-                        label="Population:",
-                        min=processed_data.population.min(),
-                        max=processed_data.population.max(),
-                        value=[processed_data.population.min(), processed_data.population.max()],
-                        step=1,
-                    ),
-                    ui.input_slider(
-                        id="households_slider",
-                        label="Households:",
-                        min=processed_data.households.min(),
-                        max=processed_data.households.max(),
-                        value=[processed_data.households.min(), processed_data.households.max()],
-                        step=1,
-                    ),
-
                     width=300
                 ),
                 
