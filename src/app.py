@@ -96,7 +96,9 @@ app_ui = ui.page_fluid(
             margin: 0;
             line-height: 1.2;
         }
-        
+        .footer p {
+            margin: 0;
+        }
     """
     ),
     ui.panel_title(
