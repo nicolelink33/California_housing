@@ -306,6 +306,7 @@ app_ui = ui.page_fluid(
                 ui.card(
                     ui.card_header(ui.output_text("chat_title")),
                     ui.output_data_frame("chat_table"),
+                    ui.output_ui("querychat_geo_cluster_plot"),
                     ui.output_ui("download_button_ui"),
                     fill=True,
                 ),
@@ -682,12 +683,99 @@ def server(input, output, session):
     qc_vals = qc.server()
 
     @reactive.calc
-    def querychat_filtered_df():
-        return processed_data.head(10) # placeholder for reactive querychat filtered df 
+    def _ai_df():
+        """Get querychat filtered dataframe as pandas DataFrame."""
+        df = qc_vals.df()
+        if df is None:
+            return processed_data
+        if hasattr(df, "to_pandas"):
+            return df.to_pandas()
+        if hasattr(df, "to_native"):
+            return df.to_native()
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame(df)
+    
+    @render.ui
+    def querychat_geo_cluster_plot():
+        df = _ai_df()
+
+        if df.empty:
+            return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
+
+        m = folium.Map(location=[36.7, -119.4], zoom_start=6, tiles=None)
+
+        folium.TileLayer(
+            tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            attr="Esri",
+            name="Satellite",
+            overlay=False,
+            control=True,
+        ).add_to(m)
+
+        folium.TileLayer("OpenStreetMap", name="Street Map").add_to(m)
+
+        folium.GeoJson(
+            counties_geojson,
+            name="Counties",
+            style_function=lambda feature: {
+                "fillColor": "#f0f0f0",
+                "color": "#444444",
+                "weight": 1.2,
+                "fillOpacity": 0.15,
+            },
+            tooltip=folium.GeoJsonTooltip(
+                fields=["county"],
+                aliases=["County:"],
+                sticky=False,
+            ),
+        ).add_to(m)
+
+        marker_cluster = MarkerCluster(name="Housing blocks").add_to(m)
+
+        for _, row in df.iterrows():
+            color = house_value_color(row["median_house_value"]) 
+            popup_html = (
+                f"<b>County:</b> {row['county']}<br>"
+                f"<b>Median House Value:</b> ${row['median_house_value']:,}<br>"
+                f"<b>Median Income:</b> ${row['median_income_usd']:,.0f}"
+            )
+            folium.CircleMarker(
+                location=[row["latitude"], row["longitude"]],
+                radius=4,
+                color=color,  
+                fill=True,
+                fill_color=color,   
+                fill_opacity=0.75,
+                popup=folium.Popup(popup_html, max_width=220),
+            ).add_to(marker_cluster)
+
+        sw = [df["latitude"].min(), df["longitude"].min()]
+        ne = [df["latitude"].max(), df["longitude"].max()]
+        m.fit_bounds([sw, ne], max_zoom=12)
+
+        legend_html = """
+            <div style="
+                position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+                background: white; padding: 10px 14px; border-radius: 8px;
+                border: 1px solid #ccc; font-size: 12px; line-height: 1.8;
+                box-shadow: 2px 2px 6px rgba(0,0,0,0.2);">
+            <b>Median House Value</b><br>
+            <span style="color:#2166ac;">&#9632;</span> &lt; $100k<br>
+            <span style="color:#74add1;">&#9632;</span> $100k – $150k<br>
+            <span style="color:#fee090;">&#9632;</span> $150k – $200k<br>
+            <span style="color:#f46d43;">&#9632;</span> $200k – $300k<br>
+            <span style="color:#d73027;">&#9632;</span> &gt; $300k
+            </div>
+            """
+        m.get_root().html.add_child(folium.Element(legend_html))
+
+        folium.LayerControl().add_to(m)
+
+        map_html = m._repr_html_()
+        return ui.HTML(f'<div style="height:700px; width:100%;">{map_html}</div>')
     
     @render.ui
     def download_button_ui():
-        df = querychat_filtered_df()
+        df = _ai_df()
 
         if df is None or df.empty:
             return None  # hide button if no data
@@ -699,7 +787,7 @@ def server(input, output, session):
 
     @render.download(filename="california_housing_filtered.csv")
     def download_querychat_filtered_df():
-        df = querychat_filtered_df()
+        df = _ai_df()
 
         if df is None or df.empty:
             return None
@@ -708,11 +796,19 @@ def server(input, output, session):
 
     @render.text
     def chat_title():
-        return "placeholder text"
+        return qc_vals.title() or "Chatbot Data View"
 
     @render.data_frame
     def chat_table():
-        return "placeholder dataframe"
+        df = _ai_df()
+        if df is None or df.empty:
+            return render.DataGrid(pd.DataFrame())  # Empty grid
+        return render.DataGrid(
+            df,
+            height="400px",
+            filters=True,           # Column filters
+            editable=False         # Set True if you want editing
+        )
 
 
 app = App(app_ui, server)
