@@ -17,6 +17,9 @@ load_dotenv(Path(__file__).parent / ".env")
 # Import dataset
 processed_data = pd.read_csv("data/processed/housing_with_county.csv")
 
+# Convert median_income from 10k USD to USD
+processed_data["median_income_usd"] = processed_data["median_income"] * 10000
+
 # Load california counties geojson
 with open("data/raw/cal_counties.geojson") as f:
     counties_geojson = json.load(f)
@@ -123,9 +126,9 @@ app_ui = ui.page_fluid(
                     ui.input_slider(
                         id="income_slider",
                         label="Median income:",
-                        min=round(processed_data.median_income.min(), 2),
-                        max=round(processed_data.median_income.max(), 2),
-                        value=[round(processed_data.median_income.quantile(0.75),2) , round(processed_data.median_income.max(), 2)],
+                        min=round(processed_data.median_income_usd.min(), 2),
+                        max=round(processed_data.median_income_usd.max(), 2),
+                        value=[round(processed_data.median_income_usd.quantile(0.75),2) , round(processed_data.median_income_usd.max(), 2)],
                         step=0.01,
                     ),
                     ui.input_slider(
@@ -323,7 +326,7 @@ def server(input, output, session):
     def _():
         # Reset Sliders
         ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()])
-        ui.update_slider("income_slider", value=[round(processed_data.median_income.quantile(0.75), 2), round(processed_data.median_income.max(), 2)])
+        ui.update_slider("income_slider", value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)])
         ui.update_slider("age_slider", value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()])
         ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()])
         ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()])
@@ -342,7 +345,7 @@ def server(input, output, session):
         idx_house_val = processed_data.median_house_value.between(
             left=input.house_val_slider()[0], right=input.house_val_slider()[1], inclusive="both"
         )
-        idx_income = processed_data.median_income.between(
+        idx_income = processed_data.median_income_usd.between(
             left=input.income_slider()[0], right=input.income_slider()[1], inclusive="both"
         )
         idx_age = processed_data.housing_median_age.between(
@@ -401,8 +404,8 @@ def server(input, output, session):
     # Median Income Value
     @render.ui
     def median_income():
-        filt_value = round(filtered_data().median_income.median() * 10000, 1)
-        state_value = round(processed_data.median_income.median() * 10000, 1)
+        filt_value = round(filtered_data().median_income_usd.median(), 1)
+        state_value = round(processed_data.median_income_usd.median(), 1)
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -463,7 +466,7 @@ def server(input, output, session):
                 tooltip=[
                     alt.Tooltip("county:N", title="County"),
                     alt.Tooltip("median_house_value:Q", title="Median House Value", format=",.0f"),
-                    alt.Tooltip("median_income:Q", title="Median Income (10k USD)", format=",.2f")
+                    alt.Tooltip("median_income_usd:Q", title="Median Income", format=",.2f")
                 ]
             )
             #.add_params(brush)
@@ -505,8 +508,10 @@ def server(input, output, session):
             "households": "Households",
         }
 
-        selected_vals = df[metric].dropna()
-        state_vals = processed_data[metric].dropna()
+        metric_to_use = "median_income_usd" if metric == "median_income" else metric
+
+        selected_vals = df[metric_to_use].dropna()
+        state_vals = processed_data[metric_to_use].dropna()
 
         if selected_vals.empty:
             ax.text(0.5, 0.5, "No data for current filters", ha="center", va="center")
@@ -534,7 +539,7 @@ def server(input, output, session):
         else:
             ax.axvline(selected_vals.iloc[0], color="#9acb5b", linewidth=2, label="Selected")
 
-        ax.set_xlabel(pretty_names[metric])
+        ax.set_xlabel(pretty_names.get(metric_to_use, metric_to_use))
         ax.set_ylabel("Density", labelpad=4)
         ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
         ax.legend(frameon=False, fontsize=8)
@@ -551,7 +556,7 @@ def server(input, output, session):
         fig, ax = plt.subplots(figsize=(5.0, 2.6))
 
         pretty_names = {
-            "median_income": "Median Income",
+            "median_income_usd": "Median Income",
             "housing_median_age": "House Age",
             "total_rooms": "Total Rooms",
             "total_bedrooms": "Total Bedrooms",
@@ -565,15 +570,17 @@ def server(input, output, session):
             return fig
 
         plot_df = df.sample(min(5000, len(df)), random_state=42)
+
+        x_col_to_use = "median_income_usd" if x_col == "median_income" else x_col
         ax.scatter(
-            plot_df[x_col],
+            plot_df[x_col_to_use],
             plot_df["median_house_value"],
             s=8,
             alpha=0.25,
             color="#4e79a7",
             edgecolors="none",
         )
-        ax.set_xlabel(pretty_names[x_col])
+        ax.set_xlabel(pretty_names.get(x_col_to_use, x_col_to_use))
         ax.set_ylabel("Median House Value", labelpad=4)
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
         ax.grid(alpha=0.2)
