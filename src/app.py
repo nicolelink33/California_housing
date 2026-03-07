@@ -1,4 +1,3 @@
-import altair as alt
 import numpy as np
 import pandas as pd
 import json
@@ -11,6 +10,8 @@ import querychat
 from chatlas import ChatGithub
 from dotenv import load_dotenv
 from pathlib import Path
+import folium
+from folium.plugins import MarkerCluster
 
 load_dotenv(Path(__file__).parent / ".env")
 
@@ -213,8 +214,7 @@ app_ui = ui.page_fluid(
                         # Map Visualization
                         ui.card(
                             ui.card_header("Geographic Distribution"),
-                            ui.output_ui("geo_cluster_container", fill=True),
-                            output_widget("geo_cluster_plot"),
+                            ui.output_ui("geo_cluster_plot"),
                             full_screen=True, # Allows users to expand the map
                             min_height="720px",
                             #fill=True,
@@ -317,7 +317,18 @@ app_ui = ui.page_fluid(
     ),
 
 )
-
+# Helper function to assign colors based on house value ranges
+def house_value_color(value):
+    if value < 100_000:
+        return "#2166ac"   # cheapest
+    elif value < 150_000:
+        return "#74add1" 
+    elif value < 200_000:
+        return "#fee090"  
+    elif value < 300_000:
+        return "#f46d43"  
+    else:
+        return "#d73027"   # most expensive
 
 def server(input, output, session):
     # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
@@ -426,69 +437,84 @@ def server(input, output, session):
             percent_text
         )
     
-    @render_widget
+    @render.ui
     def geo_cluster_plot():
         df = filtered_data()
 
         if df.empty:
-            return None
+            return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
 
-        df_sample = df.sample(min(5000, len(df)), random_state=42)
+        m = folium.Map(location=[36.7, -119.4], zoom_start=6, tiles=None)
 
-        df_sample = df_sample.replace([np.inf, -np.inf], np.nan)
-        df_sample = df_sample.fillna(0)
+        folium.TileLayer(
+            tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            attr="Esri",
+            name="Satellite",
+            overlay=False,
+            control=True,
+        ).add_to(m)
 
-        # County background layer
-        counties = alt.Chart(
-            alt.Data(values=counties_geojson["features"])
-        ).mark_geoshape(
-            fill="lightgray",
-            stroke="white",
-            strokeWidth=0.5
-        ).encode(
-            tooltip=alt.value(None)
-        )
-        
-        # brush = alt.selection_interval()
-        
-        # Housing points layer
-        points = (
-            alt.Chart(df_sample)
-            .mark_circle(opacity=0.35)
-            .encode(
-                longitude="longitude:Q",
-                latitude="latitude:Q",
-                color=alt.Color(
-                    "median_house_value:Q",
-                    scale=alt.Scale(scheme="viridis"),
-                    title="Median House Value"
-                ),
-                tooltip=[
-                    alt.Tooltip("county:N", title="County"),
-                    alt.Tooltip("median_house_value:Q", title="Median House Value", format=",.0f"),
-                    alt.Tooltip("median_income_usd:Q", title="Median Income", format=",.2f")
-                ]
+        folium.TileLayer("OpenStreetMap", name="Street Map").add_to(m)
+
+        folium.GeoJson(
+            counties_geojson,
+            name="Counties",
+            style_function=lambda feature: {
+                "fillColor": "#f0f0f0",
+                "color": "#444444",
+                "weight": 1.2,
+                "fillOpacity": 0.15,
+            },
+            tooltip=folium.GeoJsonTooltip(
+                fields=["county"],
+                aliases=["County:"],
+                sticky=False,
+            ),
+        ).add_to(m)
+
+        marker_cluster = MarkerCluster(name="Housing blocks").add_to(m)
+
+        for _, row in df.iterrows():
+            color = house_value_color(row["median_house_value"]) 
+            popup_html = (
+                f"<b>County:</b> {row['county']}<br>"
+                f"<b>Median House Value:</b> ${row['median_house_value']:,}<br>"
+                f"<b>Median Income:</b> ${row['median_income_usd']:,.0f}"
             )
-            #.add_params(brush)
-        )
+            folium.CircleMarker(
+                location=[row["latitude"], row["longitude"]],
+                radius=4,
+                color=color,  
+                fill=True,
+                fill_color=color,   
+                fill_opacity=0.75,
+                popup=folium.Popup(popup_html, max_width=220),
+            ).add_to(marker_cluster)
 
-        # Combined
+        sw = [df["latitude"].min(), df["longitude"].min()]
+        ne = [df["latitude"].max(), df["longitude"].max()]
+        m.fit_bounds([sw, ne], max_zoom=12)
 
-        chart = (
-            (counties + points)
-            .project(type="mercator")
-            .properties(
-                width="container",
-                height=420,
-                title="Geographic Distribution of Housing Values"
-            )
-            .interactive()
-            
-            # .add_selection(zoom)
-        )
+        legend_html = """
+            <div style="
+                position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+                background: white; padding: 10px 14px; border-radius: 8px;
+                border: 1px solid #ccc; font-size: 12px; line-height: 1.8;
+                box-shadow: 2px 2px 6px rgba(0,0,0,0.2);">
+            <b>Median House Value</b><br>
+            <span style="color:#2166ac;">&#9632;</span> &lt; $100k<br>
+            <span style="color:#74add1;">&#9632;</span> $100k – $150k<br>
+            <span style="color:#fee090;">&#9632;</span> $150k – $200k<br>
+            <span style="color:#f46d43;">&#9632;</span> $200k – $300k<br>
+            <span style="color:#d73027;">&#9632;</span> &gt; $300k
+            </div>
+            """
+        m.get_root().html.add_child(folium.Element(legend_html))
 
-        return chart
+        folium.LayerControl().add_to(m)
 
+        map_html = m._repr_html_()
+        return ui.HTML(f'<div style="height:700px; width:100%;">{map_html}</div>')
 
     
     # Distribution Plots
