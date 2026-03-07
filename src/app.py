@@ -82,25 +82,6 @@ app_ui = ui.page_fluid(
         """
     ),
 
-    # CSS styling
-    # ui.tags.style("""
-    #     html, body {
-    #         height: 100%;
-    #         margin: 0;
-    #     }
-
-    #     .fillable {
-    #         padding-bottom: 0 !important;
-    #     }
-
-    #     .footer {
-    #         font-size: 0.75rem;
-    #         color: #6c757d;
-    #         text-align: center;
-    #         padding: 4px 0;
-    #         margin: 0;
-    #     }
-    # """),
 
     ui.tags.style("""
         .footer {
