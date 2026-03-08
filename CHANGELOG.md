@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-08
+
+### Added
+* Querychat by [@nicolelink33](https://github.com/nicolelink33) in [#93](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/93)
+* Feat/opinionated view by [@sjbalagit](https://github.com/sjbalagit) in [#101](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/101)
+* Query chat download button by [@sjbalagit](https://github.com/sjbalagit) in [#97](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/97)
+* Feat/dynamic map by [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
+* Adds filtered data frame for the AI tab by [@AliBoloor](https://github.com/AliBoloor) in [#102](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/102)
+* Added table view, map, median_house and median_income value boxes, distribution_plot, updated the layout for the AI tab by [@mdskwong](https://github.com/mdskwong) in [#110](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/110)
+* Added 0.3.0 items and reflection section to CHANGELOG by [@nicolelink33](https://github.com/nicolelink33) in [#111](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/111)
+
+
+### Changed
+* creates two groups for the filters - one for house properties and one… by [@AliBoloor](https://github.com/AliBoloor) in [#103](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/103)
+
+### Fixed
+* Fix dev deployment failure by [@nicolelink33](https://github.com/nicolelink33) in [#95](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/95)
+* update python-dotenv version number by [@nicolelink33](https://github.com/nicolelink33) in [#96](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/96)
+* TA improvements to dashboard by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
+* Added empty dataframe handling for the value boxes by [@mdskwong](https://github.com/mdskwong) in [#110](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/110)
+
+
+
+### Known Issues
+* AI querychat occasionally uses the wrong column when filtering by county (`county_name_alt` instead of `county`) and returns 0 rows 
+
+
+### Removed
+* Removed static map [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
+
+### Reflection
+* We addressed the top improvements suggested by our TA. We refined axis formatting on density plot, removed non-informative options on scatterplot, and shortened footer - by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
+* We also addressed the improvements suggested by Ilya. We created an opinionated default filtered state for our dashboard, which shows coastal areas instead of all proximity categories, and limits to a higher income status. This default state helps with our job story #2, where an economics researcher wants to investigate coastal area housing prices. 
+
+
+
 ## [0.2.0] - 2026-02-28
 
 ### Added
@@ -80,5 +116,6 @@ Our final layout matches our M1 sketch and M2 spec quite well. A few color choic
 
 ---
 
+[0.3.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.3.0
 [0.2.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.2.0
 [0.1.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.1.0
