@@ -69,6 +69,10 @@ app_ui = ui.page_fluid(
             background: #ffffff;
             margin-bottom: 0.1rem;
         }
+        .querychat-sidebar {
+            height: 1000px;
+            overflow-y: auto !important; /* Enable vertical scrolling */
+        }
         @media (max-width: 1200px) {
             .plot-card .shiny-plot-output {
                 height: 300px !important;
@@ -222,11 +226,10 @@ app_ui = ui.page_fluid(
                             ui.card_header("Geographic Distribution"),
                             ui.output_ui("geo_cluster_plot"),
                             full_screen=True, # Allows users to expand the map
-                            min_height="720px",
-                            #fill=True,
+                            height="100%",
                         ),
                         col_widths=12,
-                        # row_heights=["150px", "1fr"],
+                        row_heights=["200px", "1fr"],
                         class_="dashboard-panel",
                     ),
                     # Column 2
@@ -249,7 +252,7 @@ app_ui = ui.page_fluid(
                                 selected="median_house_value",
                             ),
                             ui.output_plot("distribution_plot"),
-                            min_height="200px",
+                            max_height="300px",
                             class_="plot-card",
                         ),
 
@@ -269,14 +272,14 @@ app_ui = ui.page_fluid(
                                 selected="median_income",
                             ),
                             ui.output_plot("comparison_scatter"),
-                            min_height="200px",
+                            max_height="300px",
                             class_="plot-card",
                         ),
 
                         # Ocean Proximity Boxplots
                         ui.card(
                             ui.output_plot("boxplot_proximity"),
-                            min_height="200px",
+                            max_height="300px",
                             class_="plot-card",
                         ),
                         width=1,
@@ -301,19 +304,20 @@ app_ui = ui.page_fluid(
         # ── Tab 2: LLM Chat ───────────────────────────────────────────────────────
         ui.nav_panel(
             "AI Chatbot",
-            ui.layout_sidebar(
+            ui.page_sidebar(
                 qc.sidebar(),
+
                 ui.card(
                     ui.card_header(ui.output_text("chat_title")),
                     ui.output_data_frame("chat_table"),
-                    ui.output_ui("querychat_geo_cluster_plot"),
                     ui.output_ui("download_button_ui"),
-                    fill=True,
+                    height="400px",
                 ),
-                fillable=True,
+                ui.card(
+                    ui.output_ui("querychat_geo_cluster_plot"),
+                    height="600px",
+                ),
             ),
-
-
         ),
 
         id="tab",
@@ -521,7 +525,9 @@ def server(input, output, session):
         folium.LayerControl().add_to(m)
 
         map_html = m._repr_html_()
-        return ui.HTML(f'<div style="height:700px; width:100%;">{map_html}</div>')
+        map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+                    'div style="width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
+        return ui.HTML(f'{map_html}')
 
     
     # Distribution Plots
@@ -771,7 +777,9 @@ def server(input, output, session):
         folium.LayerControl().add_to(m)
 
         map_html = m._repr_html_()
-        return ui.HTML(f'<div style="height:700px; width:100%;">{map_html}</div>')
+        map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+                    'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
+        return ui.HTML(f'{map_html}')
     
     @render.ui
     def download_button_ui():
@@ -805,7 +813,6 @@ def server(input, output, session):
             return render.DataGrid(pd.DataFrame())  # Empty grid
         return render.DataGrid(
             df,
-            height="400px",
             filters=True,           # Column filters
             editable=False         # Set True if you want editing
         )
