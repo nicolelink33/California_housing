@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+### Reflection
+* We addressed the top improvements suggested by our TA. We refined axis formatting on density plot, removed non-informative options on scatterplot, and shortened footer - by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
+* We also addressed the improvements suggested by Ilya. We created an opinionated default filtered state for our dashboard, which shows coastal areas instead of all proximity categories, and limits to a higher income status. This default state helps with our job story #2, where an economics researcher wants to investigate coastal area housing prices. 
+
+
 
 ## [0.2.0] - 2026-02-28
 
