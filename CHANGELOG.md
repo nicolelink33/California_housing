@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Known Issues
+* AI querychat occasionally uses the wrong column when filtering by county (`county_name_alt` instead of `county`) and returns 0 rows 
 
 
 ### Removed
