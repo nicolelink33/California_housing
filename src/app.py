@@ -687,17 +687,22 @@ def server(input, output, session):
     # ── Tab 2: querychat ──────────────────────────────────────────────────────
     qc_vals = qc.server()
 
-    @reactive.calc
-    def querychat_filtered_df():
-        return processed_data.head(10) # placeholder for reactive querychat filtered df 
-    
+    def _ai_df():
+        """Get querychat filtered dataframe as pandas DataFrame."""
+        df = qc_vals.df()
+        if df is None:
+            return processed_data
+        if hasattr(df, "to_pandas"):
+            return df.to_pandas()
+        if hasattr(df, "to_native"):
+            return df.to_native()
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame(df)
+
     @render.ui
     def download_button_ui():
-        df = querychat_filtered_df()
-
+        df = _ai_df()
         if df is None or df.empty:
-            return None  # hide button if no data
-
+            return None
         return ui.download_button(
             id="download_querychat_filtered_df",
             label="Download Filtered Data (CSV)"
@@ -705,20 +710,19 @@ def server(input, output, session):
 
     @render.download(filename="california_housing_filtered.csv")
     def download_querychat_filtered_df():
-        df = querychat_filtered_df()
-
+        df = _ai_df()
         if df is None or df.empty:
             return None
-
         yield df.to_csv(index=False)
 
     @render.text
     def chat_title():
-        return "placeholder text"
+        title = qc_vals.title()
+        return title or "California Housing (filter via chat)"
 
     @render.data_frame
     def chat_table():
-        return "placeholder dataframe"
+        return _ai_df()
 
 
 app = App(app_ui, server)
