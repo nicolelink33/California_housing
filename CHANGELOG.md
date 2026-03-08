@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-08
+
+### Added
+* Querychat by [@nicolelink33](https://github.com/nicolelink33) in [#93](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/93)
+* Feat/opinionated view by [@sjbalagit](https://github.com/sjbalagit) in [#101](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/101)
+* Query chat download button by [@sjbalagit](https://github.com/sjbalagit) in [#97](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/97)
+* Feat/dynamic map by [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
+* Adds filtered data frame for the AI tab by [@AliBoloor](https://github.com/AliBoloor) in [#102](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/102)
+
+
+### Changed
+* creates two groups for the filters - one for house properties and one… by [@AliBoloor](https://github.com/AliBoloor) in [#103](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/103)
+
+### Fixed
+* Fix dev deployment failure by [@nicolelink33](https://github.com/nicolelink33) in [#95](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/95)
+* update python-dotenv version number by [@nicolelink33](https://github.com/nicolelink33) in [#96](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/96)
+* TA improvements to dashboard by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
+
+
+
+### Known Issues
+
+
+### Removed
+
+
+
 ## [0.2.0] - 2026-02-28
 
 ### Added
