@@ -413,7 +413,12 @@ def server(input, output, session):
     # Median House Value
     @render.ui
     def median_house():
-        filt_value = round(filtered_data().median_house_value.median(), 1)
+        df = filtered_data()
+
+        if df is None or df.empty or "median_house_value" not in df.columns:
+            return ui.value_box("Median house value", "N/A", "No data available")
+
+        filt_value = round(df.median_house_value.median(), 1)
         state_value = round(processed_data.median_house_value.median(), 1)
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
@@ -438,7 +443,11 @@ def server(input, output, session):
     # Median Income Value
     @render.ui
     def median_income():
-        filt_value = round(filtered_data().median_income_usd.median(), 1)
+        df = filtered_data()
+        if df is None or df.empty or "median_income_usd" not in df.columns:
+            return ui.value_box("Median income", "N/A", "No data available")
+
+        filt_value = round(df.median_income_usd.median(), 1)
         state_value = round(processed_data.median_income_usd.median(), 1)
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
@@ -798,6 +807,10 @@ def server(input, output, session):
     @render.ui
     def querychat_median_house():
         df = _ai_df()
+
+        if df is None or df.empty or "median_house_value" not in df.columns:
+            return ui.value_box("Median house value", "N/A", "No data available")
+
         filt_value = round(df.median_house_value.median(), 1)
         state_value = round(processed_data.median_house_value.median(), 1)
 
@@ -824,6 +837,10 @@ def server(input, output, session):
     @render.ui
     def querychat_median_income():
         df = _ai_df()
+
+        if df is None or df.empty or "median_income_usd" not in df.columns:
+            return ui.value_box("Median income", "N/A", "No data available")
+
         filt_value = round(df.median_income_usd.median(), 1)
         state_value = round(processed_data.median_income_usd.median(), 1)
 
