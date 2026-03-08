@@ -317,8 +317,16 @@ app_ui = ui.page_fluid(
                     ui.output_ui("download_button_ui"),
                     height="400px",
                 ),
-                ui.card(
-                    ui.output_ui("querychat_geo_cluster_plot"),
+                ui.layout_columns(
+                    ui.card(
+                        ui.output_ui("querychat_geo_cluster_plot"),
+                        full_screen=True,
+                    ),
+                    ui.card(
+                        ui.output_ui("querychat_median_house"),
+                        ui.output_ui("querychat_median_income"),
+                    ),
+                    col_widths=(8, 4), # This sets the 2/3 and 1/3 ratio
                     height="600px",
                 ),
             ),
@@ -784,8 +792,59 @@ def server(input, output, session):
 
         map_html = m._repr_html_()
         map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-                    'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
+                    'div style="width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
         return ui.HTML(f'{map_html}')
+
+    @render.ui
+    def querychat_median_house():
+        df = _ai_df()
+        filt_value = round(df.median_house_value.median(), 1)
+        state_value = round(processed_data.median_house_value.median(), 1)
+
+        diff = round(((filt_value - state_value) / state_value) * 100, 1)
+        if diff > 0:
+            arrow = "↑"
+        elif diff < 0:
+            arrow = "↓"
+        else: 
+            arrow = ""
+        
+        percent_text = ui.span(
+            f"{arrow} {abs(diff)}% from state median" if arrow else f"{diff}% from state median house value",
+            style="font-size:0.85rem;"
+        )
+
+        return ui.value_box(
+            "Median house value",
+            f"${int(filt_value):,}",
+            percent_text
+        )
+
+    # Median Income Value
+    @render.ui
+    def querychat_median_income():
+        df = _ai_df()
+        filt_value = round(df.median_income_usd.median(), 1)
+        state_value = round(processed_data.median_income_usd.median(), 1)
+
+        diff = round(((filt_value - state_value) / state_value) * 100, 1)
+        if diff > 0:
+            arrow = "↑"
+        elif diff < 0:
+            arrow = "↓"
+        else: 
+            arrow = ""
+        
+        percent_text = ui.span(
+            f"{arrow} {abs(diff)}% from state median" if arrow else f"{diff}% from state median income",
+            style="font-size:0.85rem;"
+        )
+
+        return ui.value_box(
+            "Median income",
+            f"${int(filt_value):,}",
+            percent_text
+        )
     
     @render.ui
     def download_button_ui():
