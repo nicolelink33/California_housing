@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Query chat download button by [@sjbalagit](https://github.com/sjbalagit) in [#97](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/97)
 * Feat/dynamic map by [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
 * Adds filtered data frame for the AI tab by [@AliBoloor](https://github.com/AliBoloor) in [#102](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/102)
+* Added table view, map, median_house and median_income value boxes, distribution_plot, updated the layout for the AI tab by [@mdskwong](https://github.com/mdskwong) in [#110](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/110)
 
 
 ### Changed
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fix dev deployment failure by [@nicolelink33](https://github.com/nicolelink33) in [#95](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/95)
 * update python-dotenv version number by [@nicolelink33](https://github.com/nicolelink33) in [#96](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/96)
 * TA improvements to dashboard by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
+* Added empty dataframe handling for the value boxes by [@mdskwong](https://github.com/mdskwong) in [#110](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/110)
 
 
 
