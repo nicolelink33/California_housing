@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Feat/dynamic map by [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
 * Adds filtered data frame for the AI tab by [@AliBoloor](https://github.com/AliBoloor) in [#102](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/102)
 * Added table view, map, median_house and median_income value boxes, distribution_plot, updated the layout for the AI tab by [@mdskwong](https://github.com/mdskwong) in [#110](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/110)
+* Added 0.3.0 items and reflection section to CHANGELOG by [@nicolelink33](https://github.com/nicolelink33) in [#111](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/111)
 
 
 ### Changed
@@ -32,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Removed
-
+* Removed static map [@sjbalagit](https://github.com/sjbalagit) in [#105](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/105)
 
 ### Reflection
 * We addressed the top improvements suggested by our TA. We refined axis formatting on density plot, removed non-informative options on scatterplot, and shortened footer - by [@nicolelink33](https://github.com/nicolelink33) in [#108](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/108)
@@ -115,5 +116,6 @@ Our final layout matches our M1 sketch and M2 spec quite well. A few color choic
 
 ---
 
+[0.3.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.3.0
 [0.2.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.2.0
 [0.1.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.1.0
