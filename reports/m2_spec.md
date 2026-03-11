@@ -115,9 +115,9 @@ This calculation filters the rows of the raw dataframe to all selected input val
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
 
 ### 4.2 AI Chatbot Tab
-LLM Processing: The `querychat-sidebar` processes natural language prompts into subsetted data.
-A reactive calculation converts the `querychat-sidebar` output into a standard Pandas DataFrame `_ai_df`. This step includes a fallback mechanism to return the full dataset if no query has been initiated.
-The DataFrame `_ai_df` is consumed by a table `chat_table`,  the map visualization `querychat_geo_cluster_plot` , the two value boxes for median house value `querychat_median_house` and median income value `querychat_median_income`, and one plot: the distribution plot `querychat_distribution_plot`.
-A download button `download_button_ui` to export and download the filtered DataFrame `_ai_df` to a CSV format file.
-A dropdown menu `querychat_distribution_var` to select which `querychat_distribution_plot` to be showed.
+- The `querychat-sidebar` processes natural language prompts into subsetted data.
+- A reactive calculation converts the `querychat-sidebar` output into a standard Pandas DataFrame `_ai_df`. This step includes a fallback mechanism to return the full dataset if no query has been initiated.
+- The DataFrame `_ai_df` is consumed by a table `chat_table`,  the map visualization `querychat_geo_cluster_plot` , the two value boxes for median house value `querychat_median_house` and median income value `querychat_median_income`, and one plot: the distribution plot `querychat_distribution_plot`.
+- A download button `download_button_ui` to export and download the filtered DataFrame `_ai_df` to a CSV format file.
+- A dropdown menu `querychat_distribution_var` to select which `querychat_distribution_plot` to be showed.
 User interactions on the `querychat_geo_cluster_plot` trigger a feedback event that refines the DataFrame `_ai_df` filter, allowing for "drill-down" analysis without manual slider adjustments.
