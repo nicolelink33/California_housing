@@ -54,7 +54,7 @@
 flowchart TD
   RB[/reset_button/] -- updates --> A & B & C & D & E & F & G & H & I
 
-  A[/house_val_slider/] --> J{{filtered_df}}
+  A[/house_val_slider/] --> J[(parquet - on disk)]
   B[/county_select/] --> J
   C[/income_slider/] --> J
   D[/age_slider/] --> J
@@ -63,17 +63,18 @@ flowchart TD
   G[/pop_slider/] --> J
   H[/households_slider/] --> J
   I[/ocean_checkbox/] --> J
-  J --> P1([median_house])
-  J --> P2([median_income])
-  J --> P3([geo_cluster_plot])
-  J --> P6([boxplot_proximity])
+  J --> M{{filtered_df}}
+  M --> P1([median_house])
+  M --> P2([median_income])
+  M --> P3([geo_cluster_plot])
+  M --> P6([boxplot_proximity])
   K[/distribution_var/] --> P4([distribution_plot])
-  J --> P4
+  M --> P4
   L[/comparison_var/] --> P5([comparison_scatter])
-  J --> P5
+  M --> P5
 ```
 ````
-![Reactivity Diagram](../img/reactivity.png)
+![Reactivity Diagram](../img/reactivity_parquet.png)
 
 ### 3.2 AI Chatbot Tab
 ````markdown
@@ -111,8 +112,8 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 - `households_slider` minimum and maximum - Number of households
 - `ocean_checkbox` - selected categorical value(s) for ocean proximity
 - `county_select` - selected California counties to include
-This calculation filters the rows of the raw dataframe to all selected input values.
-It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
+This calculation filters the rows of the processed dataframe to all selected input values. It does lazy loading with parquet and DuckDB to only draw the requested rows into memory. 
+This calculation is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
 
 ### 4.2 AI Chatbot Tab
 - The `querychat-sidebar` processes natural language prompts into subsetted data.
