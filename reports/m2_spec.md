@@ -27,7 +27,7 @@
 | `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
 | `median_income`       | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
-| `geo_cluster_plot`    | Output        | `@render_widget`          | `filtered_df`                | #3             |
+| `geo_cluster_plot`    | Output        | `@render.ui`          | `filtered_df`                | #3             |
 | `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`distribution_var`    | #1, #2         |
 | `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`, `comparison_var`        | #1, #2         |
 | `boxplot_proximity`   | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
@@ -41,7 +41,7 @@
 | `_ai_df`                         | Reactive calc | `@reactive.calc`                    | `querychat-sidebar` | #1, #2, #3 |
 | `querychat_median_house`         | Output        | `ui.value_box`                      | `_ai_df`       | #1, #2     |
 | `querychat_median_income`        | Output        | `ui.value_box`                      | `_ai_df`       | #1, #2     |
-| `querychat_geo_cluster_plot`     | Output        | `@render_widget`                    | `_ai_df`       | #3         |
+| `querychat_geo_cluster_plot`     | Output        | `@render.ui`                        | `_ai_df`       | #3         |
 | `querychat_distribution_plot`    | Output        | `@render.plot`                      | `_ai_df`, `querychat_distribution_var` | #1, #2 |
 | `chat_title`                     | Output        | `@render.text`                      | `querychat-sidebar` | #1, #2, #3 |
 | `chat_table`                     | Output        | `@render.data_frame`                | `_ai_df`       | #1, #2, #3 |
