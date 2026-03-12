@@ -12,11 +12,17 @@ from dotenv import load_dotenv
 from pathlib import Path
 import folium
 from folium.plugins import MarkerCluster
+import ibis
+from ibis import _
+import duckdb
+
+con = ibis.duckdb.connect() 
 
 load_dotenv(Path(__file__).parent / ".env")
 
-# Import dataset
-processed_data = pd.read_csv("data/processed/housing_with_county.csv")
+# Import dataset and convert to parquet - for filtering
+data_reference = con.read_parquet("data/processed/housing_with_county.csv")
+#processed_data = pd.read_csv("data/processed/housing_with_county.csv")
 
 # Convert median_income from 10k USD to USD
 processed_data["median_income_usd"] = processed_data["median_income"] * 10000
