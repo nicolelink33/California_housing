@@ -121,3 +121,8 @@ It is consumed by the map visualization, the two value boxes for median house va
 - A download button `download_button_ui` to export and download the filtered DataFrame `_ai_df` to a CSV format file.
 - A dropdown menu `querychat_distribution_var` to select which `querychat_distribution_plot` to be showed.
 User interactions on the `querychat_geo_cluster_plot` trigger a feedback event that refines the DataFrame `_ai_df` filter, allowing for "drill-down" analysis without manual slider adjustments.
+
+
+
+## Section 6. Plot Details
+- 'Reset View' button on the map resets the view after zooming
