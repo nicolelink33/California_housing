@@ -163,8 +163,8 @@ The testing suite documents expected behavior and makes it clear what breaks if 
 
 ### 5.4 Implementation Tasks
 
-1. **Refactor**: Extract `apply_filters(df, house_val_range, income_range, ...)` (or similar) into a pure function in a module (e.g., `src/utils.py` or within `app.py`) that takes a DataFrame and filter parameters and returns the filtered DataFrame.
-2. **Unit tests**: Create `tests/test_utils.py` (or `tests/test_app.py`) with pytest tests for the refactored function(s) and existing helpers (e.g., `create_median_house_value_box`, `create_median_income_box`).
+1. **Refactor**: Extract `apply_filters(df, house_val_range, income_range, ...)` into a pure function in a module (e.g., `src/utils.py` or within `app.py`) that takes a DataFrame and filter parameters and returns the filtered DataFrame.
+2. **Unit tests**: Create `tests/test_utils.py` with pytest tests for the refactored function and existing helpers (e.g., `create_median_house_value_box`, `create_median_income_box`).
 3. **Playwright setup**: Add `pytest-playwright` (or equivalent) to `environment.yml` / `requirements.txt`; add `tests/test_e2e.py` with at least 3 Playwright tests.
 4. **README**: Add a "Testing" section with the single command to run all tests and any setup (e.g., `playwright install` for browsers).
-5. **Reflection**: Add a short reflection (e.g., in the PR or a `TESTING.md`) describing what each test covers and what would break if the behavior changed.
+5. **Reflection**: Add a short reflection (`TESTING.md`) describing what each test covers and what would break if the behavior changed.
