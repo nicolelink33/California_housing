@@ -168,3 +168,7 @@ The testing suite documents expected behavior and makes it clear what breaks if 
 3. **Playwright setup**: Add `pytest-playwright` (or equivalent) to `environment.yml` / `requirements.txt`; add `tests/test_e2e.py` with at least 3 Playwright tests.
 4. **README**: Add a "Testing" section with the single command to run all tests and any setup (e.g., `playwright install` for browsers).
 5. **Reflection**: Add a short reflection (`TESTING.md`) describing what each test covers and what would break if the behavior changed.
+
+
+## Section 6. Plot Details
+- 'Reset View' button on the map resets the view after zooming
