@@ -13,19 +13,19 @@ from pathlib import Path
 import folium
 from folium.plugins import MarkerCluster
 import ibis
-from ibis import _
+from ibis import _, literal
 import duckdb
-
-con = ibis.duckdb.connect() 
 
 load_dotenv(Path(__file__).parent / ".env")
 
 # Import dataset and convert to parquet - for filtering
-data_reference = con.read_parquet("data/processed/housing_with_county.csv")
+con = ibis.duckdb.connect() 
+processed_data = con.read_parquet("data/processed/housing_with_county.parquet")
 #processed_data = pd.read_csv("data/processed/housing_with_county.csv")
 
 # Convert median_income from 10k USD to USD
-processed_data["median_income_usd"] = processed_data["median_income"] * 10000
+#processed_data["median_income_usd"] = processed_data["median_income"] * 10000
+#processed_data = processed_data.mutate(median_income_usd = processed_data.median_income * 10000)
 
 # Load california counties geojson
 with open("data/raw/cal_counties.geojson") as f:
@@ -33,7 +33,7 @@ with open("data/raw/cal_counties.geojson") as f:
 
 # Set up querychat
 qc = querychat.QueryChat(
-    processed_data.copy(),
+    processed_data.execute(),
     "housing",
     greeting="""👋 Ask me anything about California housing prices in 1990.
 
@@ -326,32 +326,32 @@ app_ui = ui.page_fluid(
                             ui.input_slider(
                                 id="house_val_slider",
                                 label="Median house value:",
-                                min=processed_data.median_house_value.min(),
-                                max=processed_data.median_house_value.max(),
-                                value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
+                                min=processed_data.median_house_value.min().execute(),
+                                max=processed_data.median_house_value.max().execute(),
+                                value=[processed_data.median_house_value.min().execute(), processed_data.median_house_value.max().execute()],
                             ),
                             ui.input_slider(
                                 id="age_slider",
                                 label="House age:",
-                                min=processed_data.housing_median_age.min(),
-                                max=processed_data.housing_median_age.max(),
-                                value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
+                                min=processed_data.housing_median_age.min().execute(),
+                                max=processed_data.housing_median_age.max().execute(),
+                                value=[processed_data.housing_median_age.min().execute(), processed_data.housing_median_age.max().execute()],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="rooms_slider",
                                 label="Total rooms:",
-                                min=processed_data.total_rooms.min(),
-                                max=processed_data.total_rooms.max(),
-                                value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
+                                min=processed_data.total_rooms.min().execute(),
+                                max=processed_data.total_rooms.max().execute(),
+                                value=[processed_data.total_rooms.min().execute(), processed_data.total_rooms.max().execute()],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="beds_slider",
                                 label="Total bedrooms:",
-                                min=processed_data.total_bedrooms.min(),
-                                max=processed_data.total_bedrooms.max(),
-                                value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
+                                min=processed_data.total_bedrooms.min().execute(),
+                                max=processed_data.total_bedrooms.max().execute(),
+                                value=[processed_data.total_bedrooms.min().execute(), processed_data.total_bedrooms.max().execute()],
                                 step=1,
                             ),
                             ui.input_checkbox_group(
@@ -369,7 +369,7 @@ app_ui = ui.page_fluid(
                             ui.input_selectize(
                                 id="county_select",
                                 label="County:",
-                                choices=sorted(processed_data["county"].dropna().unique()),
+                                choices=sorted(processed_data["county"].execute().dropna().unique()),
                                 selected=[],
                                 multiple=True
                             ),
@@ -379,25 +379,25 @@ app_ui = ui.page_fluid(
                             ui.input_slider(
                                 id="income_slider",
                                 label="Median income:",
-                                min=round(processed_data.median_income_usd.min(), 2),
-                                max=round(processed_data.median_income_usd.max(), 2),
-                                value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)],
+                                min=round(processed_data.median_income_usd.min().execute(), 2),
+                                max=round(processed_data.median_income_usd.max().execute(), 2),
+                                value=[round(processed_data.median_income_usd.quantile(0.75).execute(), 2), round(processed_data.median_income_usd.max().execute(), 2)],
                                 step=0.01,
                             ),
                             ui.input_slider(
                                 id="pop_slider",
                                 label="Population:",
-                                min=processed_data.population.min(),
-                                max=processed_data.population.max(),
-                                value=[processed_data.population.min(), processed_data.population.max()],
+                                min=processed_data.population.min().execute(),
+                                max=processed_data.population.max().execute(),
+                                value=[processed_data.population.min().execute(), processed_data.population.max().execute()],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="households_slider",
                                 label="Households:",
-                                min=processed_data.households.min(),
-                                max=processed_data.households.max(),
-                                value=[processed_data.households.min(), processed_data.households.max()],
+                                min=processed_data.households.min().execute(),
+                                max=processed_data.households.max().execute(),
+                                value=[processed_data.households.min().execute(), processed_data.households.max().execute()],
                                 step=1,
                             ),
                         ),
@@ -556,10 +556,6 @@ app_ui = ui.page_fluid(
         ),
 
         id="tab",
-        
-        #ui.nav_menu(
-        #    
-        #)
     ),
 
 )
@@ -577,18 +573,20 @@ def house_value_color(value):
         return "#d73027"   # most expensive
 
 def server(input, output, session):
+    session.on_ended(con.disconnect)     # clean up when user leaves
+
     # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
     @reactive.effect
     @reactive.event(input.reset_button)
     def _():
         # Reset Sliders
-        ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()])
-        ui.update_slider("income_slider", value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)])
-        ui.update_slider("age_slider", value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()])
-        ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()])
-        ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()])
-        ui.update_slider("pop_slider", value=[processed_data.population.min(), processed_data.population.max()])
-        ui.update_slider("households_slider", value=[processed_data.households.min(), processed_data.households.max()])
+        ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min().execute(), processed_data.median_house_value.max().execute()])
+        ui.update_slider("income_slider", value=[round(processed_data.median_income_usd.quantile(0.75).execute(), 2), round(processed_data.median_income_usd.max().execute(), 2)])
+        ui.update_slider("age_slider", value=[processed_data.housing_median_age.min().execute(), processed_data.housing_median_age.max().execute()])
+        ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min().execute(), processed_data.total_rooms.max().execute()])
+        ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min().execute(), processed_data.total_bedrooms.max().execute()])
+        ui.update_slider("pop_slider", value=[processed_data.population.min().execute(), processed_data.population.max().execute()])
+        ui.update_slider("households_slider", value=[processed_data.households.min().execute(), processed_data.households.max().execute()])
         
         # Reset Checkbox Group
         ui.update_checkbox_group("ocean_checkbox", selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"])
@@ -599,39 +597,78 @@ def server(input, output, session):
     # Filter dataset
     @reactive.calc
     def filtered_data():
-        idx_house_val = processed_data.median_house_value.between(
-            left=input.house_val_slider()[0], right=input.house_val_slider()[1], inclusive="both"
-        )
-        idx_income = processed_data.median_income_usd.between(
-            left=input.income_slider()[0], right=input.income_slider()[1], inclusive="both"
-        )
-        idx_age = processed_data.housing_median_age.between(
-            left=input.age_slider()[0], right=input.age_slider()[1], inclusive="both"
-        )
-        idx_rooms = processed_data.total_rooms.between(
-            left=input.rooms_slider()[0], right=input.rooms_slider()[1], inclusive="both"
-        )
-        idx_beds = processed_data.total_bedrooms.between(
-            left=input.beds_slider()[0], right=input.beds_slider()[1], inclusive="both"
-        )
-        idx_pop = processed_data.population.between(
-            left=input.pop_slider()[0], right=input.pop_slider()[1], inclusive="both"
-        )
-        idx_households = processed_data.households.between(
-            left=input.households_slider()[0], right=input.households_slider()[1], inclusive="both"
-        )
-        idx_ocean = processed_data.ocean_proximity.isin(input.ocean_checkbox())
+        expr = processed_data
 
-        # Selected counties from dashboard
-        selected_counties = list(input.county_select() or [])
-        selected_counties = [c.strip() for c in selected_counties] 
+        expr = expr.filter(
+            _.median_house_value.between(
+                left=input.house_val_slider()[0],
+                right=input.house_val_slider()[1],
+                inclusive="both"
+            )
+        )
 
-        idx_county = (
-            processed_data.county.isin(selected_counties)
-            if selected_counties else pd.Series(True, index=processed_data.index)
+        expr = expr.filter(
+            _.median_income.between(
+                left=input.income_slider()[0],
+                right=input.income_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        expr = expr.filter(
+            _.housing_median_age.between(
+                left=input.age_slider()[0],
+                right=input.age_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        expr = expr.filter(
+            _.total_rooms.between(
+                left=input.rooms_slider()[0],
+                right=input.rooms_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        expr = expr.filter(
+            _.total_bedrooms.between(
+                left=input.beds_slider()[0],
+                right=input.beds_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        expr = expr.filter(
+            _.population.between(
+                left=input.pop_slider()[0],
+                right=input.pop_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        expr = expr.filter(
+            _.households.between(
+                left=input.households_slider()[0],
+                right=input.households_slider()[1],
+                inclusive="both"
+            )
+        )
+
+        if input.ocean_checkbox():
+            expr = expr.filter(
+                _.ocean_proximity.isin(input.ocean_checkbox())
             )
 
-        return processed_data[idx_house_val & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_households & idx_ocean & idx_county]
+        selected_counties = list(input.county_select() or [])
+        selected_counties = [c.strip() for c in selected_counties]
+        if selected_counties:
+            expr = expr.filter(
+                _.county.isin(selected_counties)
+            )
+
+        return expr.execute()
+
 
     # Median House Value
     @render.ui
