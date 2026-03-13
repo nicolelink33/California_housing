@@ -428,8 +428,8 @@ app_ui = ui.page_fluid(
                             ui.div(
                                 ui.output_ui("geo_cluster_plot"),
                                 ui.div(
-                                    ui.input_action_button("reset_map_btn", "Reset Map View", class_="btn-sm"),
-                                    style="position:absolute;top:8px;right:8px;z-index:1000;",
+                                    ui.input_action_button("reset_map_btn", "Reset View", class_="btn-sm"),
+                                    style="position:absolute;top:90px;left:10px;z-index:1000;",
                                 ),
                                 style="position:relative;",
                             ),
