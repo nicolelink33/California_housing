@@ -24,10 +24,12 @@
 | `comparison_var`       | Input         | `ui.input_select()`              | —                            | #1, #2, #3     |
 | `distribution_var`   | Input         | `ui.input_select()`          | —                            | #1, #2         |
 | `reset_button`   | Input         | `ui.input_action_button()`          | —                            | #1, #2, #3         |
-| `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select` | #1, #2, #3 |
+| `map_county_click` | Input       | `Shiny.setInputValue()` (JS bridge injected into Folium map HTML) | — | #1, #2, #3 |
+| `selected_counties_rv` | Reactive value | `reactive.value` | `map_county_click`, `reset_button` | #1, #2, #3 |
+| `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select`, `selected_counties_rv` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
 | `median_income`       | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
-| `geo_cluster_plot`    | Output        | `@render.ui`          | `filtered_df`                | #3             |
+| `geo_cluster_plot`    | Output        | `@render.ui`          | `filtered_df`, `selected_counties_rv` | #3             |
 | `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`distribution_var`    | #1, #2         |
 | `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`, `comparison_var`        | #1, #2         |
 | `boxplot_proximity`   | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
@@ -53,6 +55,7 @@
 ```mermaid
 flowchart TD
   RB[/reset_button/] -- updates --> A & B & C & D & E & F & G & H & I
+  RB -- clears --> SRV{{selected_counties_rv}}
 
   A[/house_val_slider/] --> J{{filtered_df}}
   B[/county_select/] --> J
@@ -63,6 +66,11 @@ flowchart TD
   G[/pop_slider/] --> J
   H[/households_slider/] --> J
   I[/ocean_checkbox/] --> J
+
+  MC[/map_county_click/] --> SRV
+  SRV --> J
+  SRV --> P3
+
   J --> P1([median_house])
   J --> P2([median_income])
   J --> P3([geo_cluster_plot])
@@ -111,8 +119,17 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 - `households_slider` minimum and maximum - Number of households
 - `ocean_checkbox` - selected categorical value(s) for ocean proximity
 - `county_select` - selected California counties to include
+- `selected_counties_rv` - counties selected via map clicks (merged with `county_select`)
+
 This calculation filters the rows of the raw dataframe to all selected input values.
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
+
+Map County Click Interaction:
+- Clicking a county polygon on `geo_cluster_plot` fires a JavaScript `Shiny.setInputValue("map_county_click", ...)` event, passing the county name and whether the Shift key was held.
+- `selected_counties_rv` (a `reactive.value`) handles the toggle logic: a plain click sets the selection to just that county; a Shift+click adds or removes that county from the current list.
+- The `reset_button` also resets `selected_counties_rv` to an empty list and clears the `county_select` dropdown.
+- Clicked counties are visually highlighted on the map with a distinct fill colour so users can see what is selected.
+
 
 ### 4.2 AI Chatbot Tab
 - The `querychat-sidebar` processes natural language prompts into subsetted data.
