@@ -245,8 +245,13 @@ def create_geo_cluster_plot(df):
 
     map_html = m._repr_html_()
     map_html = map_html.replace(
+        '<div style="width:100%;">',
+        '<div class="map-container-outer" style="width:100%;height:100%;">',
+        1,
+    )
+    map_html = map_html.replace(
         'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-        'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+        'div class="map-container-inner" style="position:relative;width:100%;height:100%;min-height:300px;"',
         1,
     )
     return map_html
@@ -269,6 +274,51 @@ app_ui = ui.page_fluid(
         .querychat-sidebar {
             height: 1000px;
             overflow-y: auto !important; /* Enable vertical scrolling */
+        }
+        .map-card-full {
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
+        }
+        .map-card-full .bslib-card-body,
+        .map-card-full .card-body {
+            padding: 0 !important;
+            margin: 0 !important;
+            height: 100%;
+        }
+        .map-card-full > div,
+        .map-card-full .shiny-html-output,
+        .map-card-full .html-fill-container,
+        .map-card-full .html-fill-item,
+        .map-card-full [class*="card-body"],
+        .map-card-full [class*="html-fill"] {
+            height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .map-container-outer {
+            width: 100% !important;
+            height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .map-container-inner {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 300px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .map-container-inner iframe {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .map-container-inner > span {
+            display: none !important;
         }
         @media (max-width: 1200px) {
             .plot-card .shiny-plot-output {
@@ -424,17 +474,18 @@ app_ui = ui.page_fluid(
 
                         # Map Visualization
                         ui.card(
-                            ui.card_header("Geographic Distribution"),
                             ui.div(
                                 ui.output_ui("geo_cluster_plot"),
                                 ui.div(
                                     ui.input_action_button("reset_map_btn", "Reset View", class_="btn-sm"),
                                     style="position:absolute;top:90px;left:10px;z-index:1000;",
                                 ),
-                                style="position:relative;",
+                                style="position:relative;height:100%;width:100%;min-height:400px;",
                             ),
-                            full_screen=True, # Allows users to expand the map
+                            full_screen=True,
                             height="100%",
+                            fill=True,
+                            class_="map-card-full p-0",
                         ),
                         col_widths=12,
                         row_heights=["200px", "1fr"],
@@ -778,8 +829,13 @@ def server(input, output, session):
         _ = input.reset_map_btn()
         map_html = m._repr_html_()
         map_html = map_html.replace(
+            '<div style="width:100%;">',
+            '<div class="map-container-outer" style="width:100%;height:100%;">',
+            1,
+        )
+        map_html = map_html.replace(
             'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-            'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+            'div class="map-container-inner" style="position:relative;width:100%;height:100%;min-height:300px;"',
             1,
         )
         return ui.HTML(f'{map_html}')
@@ -963,8 +1019,13 @@ def server(input, output, session):
         if map_html is None:
             return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
         map_html = map_html.replace(
+            '<div style="width:100%;">',
+            '<div class="map-container-outer" style="width:100%;height:100%;">',
+            1,
+        )
+        map_html = map_html.replace(
             'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-            'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+            'div class="map-container-inner" style="position:relative;width:100%;height:100%;min-height:300px;"',
             1,
         )
         return ui.HTML(map_html)
