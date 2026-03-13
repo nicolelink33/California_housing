@@ -819,7 +819,12 @@ def server(input, output, session):
 
         ax.set_xlabel(pretty_names.get(metric_to_use, metric_to_use))
         ax.set_ylabel("Density", labelpad=4)
-        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
+        if metric in ("median_house_value", "median_income"):
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
+        elif metric in ("housing_median_age"):
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x):,}"))
+        else:  # population, households, total_rooms, total_bedrooms
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x/1000:.0f}K" if x >= 1000 else f"{int(x):,}"))
         ax.legend(frameon=False, fontsize=8)
         ax.grid(alpha=0.2)
         ax.yaxis.offsetText.set_visible(False)
@@ -861,6 +866,10 @@ def server(input, output, session):
         )
         ax.set_xlabel(pretty_names.get(x_col_to_use, x_col_to_use))
         ax.set_ylabel("Median House Value", labelpad=4)
+        if x_col_to_use == "median_income_usd":
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}K"))
+        elif x_col_to_use in ("total_rooms", "households"):
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x/1000:.0f}K" if x >= 1000 else f"{int(x):,}"))
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
         ax.grid(alpha=0.2)
         ax.tick_params(axis="both", labelsize=8)
