@@ -10,6 +10,7 @@ import querychat
 from chatlas import ChatGithub
 from dotenv import load_dotenv
 from pathlib import Path
+
 import folium
 from folium.plugins import MarkerCluster
 
@@ -243,6 +244,11 @@ def create_geo_cluster_plot(df):
     folium.LayerControl().add_to(m)
 
     map_html = m._repr_html_()
+    map_html = map_html.replace(
+        'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+        'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+        1,
+    )
     return map_html
 
 # Page configuration
@@ -419,7 +425,14 @@ app_ui = ui.page_fluid(
                         # Map Visualization
                         ui.card(
                             ui.card_header("Geographic Distribution"),
-                            ui.output_ui("geo_cluster_plot"),
+                            ui.div(
+                                ui.output_ui("geo_cluster_plot"),
+                                ui.div(
+                                    ui.input_action_button("reset_map_btn", "Reset Map View", class_="btn-sm"),
+                                    style="position:absolute;top:8px;right:8px;z-index:1000;",
+                                ),
+                                style="position:relative;",
+                            ),
                             full_screen=True, # Allows users to expand the map
                             height="100%",
                         ),
@@ -762,9 +775,13 @@ def server(input, output, session):
 
         folium.LayerControl().add_to(m)
 
+        _ = input.reset_map_btn()
         map_html = m._repr_html_()
-        map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-                    'div style="width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
+        map_html = map_html.replace(
+            'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+            'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+            1,
+        )
         return ui.HTML(f'{map_html}')
 
     
@@ -945,8 +962,11 @@ def server(input, output, session):
         map_html = create_geo_cluster_plot(_ai_df())
         if map_html is None:
             return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
-        map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-                    'div style="width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
+        map_html = map_html.replace(
+            'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+            'div style="position:relative;width:100%;height:100%;padding-bottom:60%;"',
+            1,
+        )
         return ui.HTML(map_html)
 
     @render.ui
