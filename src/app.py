@@ -418,15 +418,30 @@ app_ui = ui.page_fluid(
     ui.navset_pill(
 
         # ── Tab 1: Traditional Dashboard ─────────────────────────────────────────
-        ui.nav_panel("Manual Filtering", 
+        ui.nav_panel("Dashboard", 
 
             ui.layout_sidebar(
                 # Sidebar inputs
                 ui.sidebar(
+
                     ui.input_action_button("reset_button", "Reset All Filters"),
+
                     ui.accordion(
                         ui.accordion_panel(
-                            "House Properties",
+                            ui.HTML("""
+                                House Properties
+                                <span style="
+                                    cursor:default; margin-left:6px;
+                                    display:inline-flex; align-items:center; justify-content:center;
+                                    width:14px; height:14px; border-radius:50%;
+                                    border:1.5px solid #888; color:#888;
+                                    font-size:10px; font-weight:bold;
+                                    line-height:1; vertical-align:middle;"
+                                    title="All measures are aggregated at the census block level.">
+                                    i
+                                </span>
+                            """),
+                            
                             ui.input_slider(
                                 id="house_val_slider",
                                 label="Median house value:",
@@ -477,9 +492,24 @@ app_ui = ui.page_fluid(
                                 selected=[],
                                 multiple=True
                             ),
+                            value="house_properties",
                         ),
                         ui.accordion_panel(
-                            "Socio-economic",
+
+                            ui.HTML("""
+                                Socio-economic Properties
+                                <span style="
+                                    cursor:default; margin-left:6px;
+                                    display:inline-flex; align-items:center; justify-content:center;
+                                    width:14px; height:14px; border-radius:50%;
+                                    border:1.5px solid #888; color:#888;
+                                    font-size:10px; font-weight:bold;
+                                    line-height:1; vertical-align:middle;"
+                                    title="All measures are aggregated at the census block level.">
+                                    i
+                                </span>
+                            """),
+                            
                             ui.input_slider(
                                 id="income_slider",
                                 label="Median income:",
@@ -504,6 +534,8 @@ app_ui = ui.page_fluid(
                                 value=[Households_min, Households_max],
                                 step=1,
                             ),
+
+                            value="socio_economic"
                         ),
                         id="filters_accordion",
                         open=True,
@@ -513,7 +545,19 @@ app_ui = ui.page_fluid(
                 ),
                 
                 # Page configuration
+
                 ui.layout_columns(
+                    # County banner — full width above all columns
+                    ui.card(
+                        ui.output_ui("county_banner"),
+                        class_="p-2",
+                        max_height="50px",
+                    ),
+                    col_widths=12,
+                ),
+
+                ui.layout_columns(
+                    
                     # Column 1
                     ui.layout_columns(
                             
@@ -604,6 +648,7 @@ app_ui = ui.page_fluid(
                     ),
                     col_widths=[8, 4]
                 ),
+                style="display:flex; flex-direction:column; gap:0;",
                 
             ),
             ui.div(
@@ -779,6 +824,27 @@ def server(input, output, session):
 
         return processed_data[idx_house_val & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_households & idx_ocean & idx_county]
 
+    # County Banner
+    @render.ui
+    def county_banner():
+        dropdown_counties = list(input.county_select() or [])
+        map_counties = list(selected_counties_rv() or [])
+        counties = list(dict.fromkeys(dropdown_counties + map_counties))
+
+        if not counties:
+            text = "Currently showing: All counties in California"
+        else:
+            if len(counties) <= 3:
+                text = "Currently showing: " + ", ".join(counties)
+            else:
+                others = len(counties) - 3
+                text = f"Currently showing: {', '.join(counties[:3])} and {others} other{'s' if others > 1 else ''}"  
+
+        return ui.div(
+            ui.p(text, style="font-size:0.9rem; margin:0;"),
+            style="display:flex; align-items:center; height:100%;",
+        )
+    
     @reactive.calc
     def filtered_data():
         return filtered_expr().to_pandas()

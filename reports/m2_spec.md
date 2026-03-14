@@ -34,6 +34,8 @@
 | `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`distribution_var`    | #1, #2         |
 | `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`, `comparison_var`        | #1, #2         |
 | `boxplot_proximity`   | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
+| `county_banner`   | Output        | `@render.ui`          | `county_select`, `selected_counties_rv`                | #1, #2, #3         |
+
 
 ### 2.2: AI Chatbot Tab
 | ID            | Type          | Shiny widget / renderer   | Depends on                   | Job story  |
@@ -68,9 +70,10 @@ flowchart TD
   H[/households_slider/] --> J
   I[/ocean_checkbox/] --> J
 
-  MC[/map_county_click/] --> SRV
+  MC[/map_county_click/] --> SRV{{selected_counties_rv}}
   SRV --> J
   SRV --> P3
+  SRV --> county_banner([county_banner])
 
   RMB[/reset_map_btn/] --> P3
 
@@ -82,6 +85,8 @@ flowchart TD
   K[/distribution_var/] --> P4([distribution_plot])
   M --> P4
   L[/comparison_var/] --> P5([comparison_scatter])
+
+  B --> county_banner
   M --> P5
 ```
 ````
@@ -130,6 +135,10 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 
 This calculation filters the rows of the raw dataframe to all selected input values. It does lazy loading with parquet and DuckDB to only draw the requested rows into memory.
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
+
+**County Banner:**
+
+The `county_banner` output displays the currently active county selection below the dashboard subtitle. When no counties are selected it reads "Showing all counties in California". When 1–3 counties are selected it lists them by name. When more than 3 are selected it shows the first 3 and "and N other(s)". It depends on `county_select` and `selected_counties_rv` and updates from both selection sources.
 
 **Map County Click Interaction:**
 
@@ -200,6 +209,8 @@ The testing suite documents expected behavior and makes it clear what breaks if 
 4. **README**: Add a "Testing" section with the single command to run all tests and any setup (e.g., `playwright install` for browsers).
 5. **Reflection**: Add a short reflection (`TESTING.md`) describing what each test covers and what would break if the behavior changed.
 
-## Section 6. Plot Details
+## Section 6. UI & Plot Details
 
 - 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
+- Each accordion panel header ("House Properties" and "Socio-economic Properties") contains a info ⓘ icon. Hovering over it displays a tooltip explaining that 'all measures are aggregated at the census block level'.
+- Rename 'Manual Filtering' tab to 'Dashboard'.
