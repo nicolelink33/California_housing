@@ -374,14 +374,22 @@ app_ui = ui.page_fluid(
 
                     ui.input_action_button("reset_button", "Reset All Filters"),
 
-                    ui.tags.p(
-                        "All measures are aggregated at the census block level.",
-                        style="font-size:0.78rem; color:#888; margin-top:0.1rem; margin-bottom:0.25rem; font-style:italic;"
-                    ),
-
                     ui.accordion(
                         ui.accordion_panel(
-                            "House Properties",
+                            ui.HTML("""
+                                House Properties
+                                <span style="
+                                    cursor:default; margin-left:6px;
+                                    display:inline-flex; align-items:center; justify-content:center;
+                                    width:14px; height:14px; border-radius:50%;
+                                    border:1.5px solid #888; color:#888;
+                                    font-size:10px; font-weight:bold;
+                                    line-height:1; vertical-align:middle;"
+                                    title="All measures are aggregated at the census block level.">
+                                    i
+                                </span>
+                            """),
+                            
                             ui.input_slider(
                                 id="house_val_slider",
                                 label="Median house value:",
@@ -432,9 +440,24 @@ app_ui = ui.page_fluid(
                                 selected=[],
                                 multiple=True
                             ),
+                            value="house_properties",
                         ),
                         ui.accordion_panel(
-                            "Socio-economic",
+
+                            ui.HTML("""
+                                Socio-economic Properties
+                                <span style="
+                                    cursor:default; margin-left:6px;
+                                    display:inline-flex; align-items:center; justify-content:center;
+                                    width:14px; height:14px; border-radius:50%;
+                                    border:1.5px solid #888; color:#888;
+                                    font-size:10px; font-weight:bold;
+                                    line-height:1; vertical-align:middle;"
+                                    title="All measures are aggregated at the census block level.">
+                                    i
+                                </span>
+                            """),
+                            
                             ui.input_slider(
                                 id="income_slider",
                                 label="Median income:",
@@ -459,6 +482,8 @@ app_ui = ui.page_fluid(
                                 value=[processed_data.households.min(), processed_data.households.max()],
                                 step=1,
                             ),
+
+                            value="socio_economic"
                         ),
                         id="filters_accordion",
                         open=True,
