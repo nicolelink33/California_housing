@@ -25,7 +25,7 @@
 | `distribution_var`   | Input         | `ui.input_select()`          | —                            | #1, #2         |
 | `reset_button`   | Input         | `ui.input_action_button()`          | —                            | #1, #2, #3         |
 | `reset_map_btn`      | Input         | `ui.input_action_button()`|  | #3         |
-| `map_county_click` | Input       | `Shiny.setInputValue()` (JS bridge injected into Folium map HTML) | — | #1, #2, #3 |
+| `map_county_click` | Input       | `Shiny.setInputValue()`  | — | #1, #2, #3 |
 | `selected_counties_rv` | Reactive value | `reactive.value` | `map_county_click`, `reset_button` | #1, #2, #3 |
 | `filtered_df` | Reactive calc | `@reactive.calc`    | `house_val_slider`,`income_slider`,`age_slider`,`rooms_slider`,`beds_slider`,`pop_slider`,`households_slider`,`ocean_checkbox`, `county_select`, `selected_counties_rv` | #1, #2, #3 |
 | `median_house`        | Output        | `ui.value_box`          | `filtered_df`                | #1, #2         |
@@ -150,4 +150,5 @@ User interactions on the `querychat_geo_cluster_plot` trigger a feedback event t
 
 
 ## Section 6. Plot Details
-- 'Reset View' button on the map resets the view after zooming
+
+- 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
