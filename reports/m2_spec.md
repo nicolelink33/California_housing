@@ -138,6 +138,7 @@ It is consumed by the map visualization, the two value boxes for median house va
 - Clicked counties are visually highlighted on the map with a distinct fill colour so users can see what is selected.
 - When counties are selected, the map zooms to fit the bounding box of the matching county polygons from the GeoJSON, so the zoom level always shows the full county shape. When no county is selected, the map fits all visible data points with a max zoom of 12.
 - The `reset_map_btn` button re-renders `geo_cluster_plot` with the default zoom (centred on California, zoom 6), restoring the original map view without clearing any other filters.
+- An ℹ️ info icon is overlaid in the bottom-right corner of the map. Hovering over it displays a tooltip instructing users to click a county to filter, and Shift+click to select multiple counties.
 
 ### 4.2 AI Chatbot Tab
 
