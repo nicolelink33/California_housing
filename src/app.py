@@ -466,7 +466,19 @@ app_ui = ui.page_fluid(
                 ),
                 
                 # Page configuration
+
                 ui.layout_columns(
+                    # County banner — full width above all columns
+                    ui.card(
+                        ui.output_ui("county_banner"),
+                        class_="p-2",
+                        max_height="50px",
+                    ),
+                    col_widths=12,
+                ),
+
+                ui.layout_columns(
+                    
                     # Column 1
                     ui.layout_columns(
                             
@@ -554,6 +566,7 @@ app_ui = ui.page_fluid(
                     ),
                     col_widths=[8, 4]
                 ),
+                style="display:flex; flex-direction:column; gap:0;",
                 
             ),
             ui.div(
@@ -738,6 +751,27 @@ def server(input, output, session):
 
         return processed_data[idx_house_val & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_households & idx_ocean & idx_county]
 
+    # County Banner
+    @render.ui
+    def county_banner():
+        dropdown_counties = list(input.county_select() or [])
+        map_counties = list(selected_counties_rv() or [])
+        counties = list(dict.fromkeys(dropdown_counties + map_counties))
+
+        if not counties:
+            text = "Currently showing: All counties in California"
+        else:
+            if len(counties) <= 3:
+                text = "Currently showing: " + ", ".join(counties)
+            else:
+                others = len(counties) - 3
+                text = f"Currently showing: {', '.join(counties[:3])} and {others} other{'s' if others > 1 else ''}"  
+
+        return ui.div(
+            ui.p(text, style="font-size:0.9rem; margin:0;"),
+            style="display:flex; align-items:center; height:100%;",
+        )
+    
     # Median House Value
     @render.ui
     def median_house():
