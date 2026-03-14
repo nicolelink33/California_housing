@@ -369,7 +369,14 @@ app_ui = ui.page_fluid(
             ui.layout_sidebar(
                 # Sidebar inputs
                 ui.sidebar(
+
                     ui.input_action_button("reset_button", "Reset All Filters"),
+
+                    ui.tags.p(
+                        "All measures are aggregated at the census block level.",
+                        style="font-size:0.78rem; color:#888; margin-top:0.1rem; margin-bottom:0.25rem; font-style:italic;"
+                    ),
+
                     ui.accordion(
                         ui.accordion_panel(
                             "House Properties",
