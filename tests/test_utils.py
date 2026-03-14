@@ -2,6 +2,7 @@
 Unit tests for src.utils filtering and aggregation logic.
 Each test verifies a specific behavior that would break if the implementation changed.
 """
+import ibis
 import pandas as pd
 import pytest
 
@@ -33,8 +34,9 @@ def test_apply_filters_returns_subset():
     columns satisfy the specified ranges; verifies core filtering logic.
     """
     df = _make_fixture_df()
-    result = apply_filters(
-        df,
+    t = ibis.memtable(df)
+    filtered = apply_filters(
+        t,
         house_val_range=(150_000, 350_000),
         income_range=(60_000, 130_000),
         age_range=(15, 35),
@@ -45,6 +47,7 @@ def test_apply_filters_returns_subset():
         ocean_proximity=["NEAR BAY"],
         county_select=["Alameda", "Contra Costa"],
     )
+    result = filtered.execute()
     assert len(result) == 2
     assert list(result["county"]) == ["Alameda", "Contra Costa"]
     assert result["median_house_value"].between(150_000, 350_000).all()
@@ -57,8 +60,9 @@ def test_apply_filters_empty_county_select():
     "no selection = show all" behavior.
     """
     df = _make_fixture_df()
-    result = apply_filters(
-        df,
+    t = ibis.memtable(df)
+    filtered = apply_filters(
+        t,
         house_val_range=(0, 1_000_000),
         income_range=(0, 500_000),
         age_range=(0, 100),
@@ -69,6 +73,7 @@ def test_apply_filters_empty_county_select():
         ocean_proximity=["INLAND", "NEAR BAY", "<1H OCEAN"],
         county_select=[],
     )
+    result = filtered.execute()
     assert len(result) == 4
     assert set(result["county"]) == {"Alameda", "Contra Costa", "San Francisco"}
 
