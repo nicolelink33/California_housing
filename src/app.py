@@ -849,10 +849,38 @@ def server(input, output, session):
                 fill_opacity=0.75,
                 popup=folium.Popup(popup_html, max_width=220),
             ).add_to(marker_cluster)
-
-        sw = [df["latitude"].min(), df["longitude"].min()]
-        ne = [df["latitude"].max(), df["longitude"].max()]
-        m.fit_bounds([sw, ne], max_zoom=12)
+            
+        _ = input.reset_map_btn()
+        selected_counties_active = list(selected_counties_rv()) or list(input.county_select() or [])
+        if selected_counties_active:
+            # Collect all coordinates from the matching county polygons in the GeoJSON
+            county_lats, county_lons = [], []
+            for feature in counties_geojson.get("features", []):
+                if feature.get("properties", {}).get("county") in selected_counties_active:
+                    geom = feature.get("geometry", {})
+                    coords = geom.get("coordinates", [])
+                    geom_type = geom.get("type", "")
+                    # Flatten Polygon / MultiPolygon coordinate rings
+                    rings = coords if geom_type == "MultiPolygon" else [coords]
+                    for poly in rings:
+                        for ring in poly:
+                            for lon, lat in ring:
+                                county_lats.append(lat)
+                                county_lons.append(lon)
+            if county_lats:
+                sw = [min(county_lats), min(county_lons)]
+                ne = [max(county_lats), max(county_lons)]
+                m.fit_bounds([sw, ne])  # No max_zoom — let Leaflet pick the right level
+            else:
+                # Fallback: use data point bounds if GeoJSON lookup found nothing
+                sw = [df["latitude"].min(), df["longitude"].min()]
+                ne = [df["latitude"].max(), df["longitude"].max()]
+                m.fit_bounds([sw, ne])
+        else:
+            # No county filter — fit to all visible data points with a sensible max zoom
+            sw = [df["latitude"].min(), df["longitude"].min()]
+            ne = [df["latitude"].max(), df["longitude"].max()]
+            m.fit_bounds([sw, ne], max_zoom=12)
 
         legend_html = """
             <div style="
@@ -872,7 +900,6 @@ def server(input, output, session):
 
         # Inject a JavaScript listener that fires a Shiny input event
         # whenever the user clicks a county polygon on the map.
-
         county_click_js = """
         <script>
         (function() {
