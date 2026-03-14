@@ -9,15 +9,21 @@ from shinywidgets import output_widget, render_widget
 import querychat
 from chatlas import ChatGithub
 from dotenv import load_dotenv
+import sys
 from pathlib import Path
 
 import folium
-
-from utils import apply_filters
 from folium.plugins import MarkerCluster
 import ibis
 from ibis import _, literal
 import duckdb
+
+# Set up utils path to work both locally and on Posit Connect
+src_path = str(Path(__file__).parent)
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
+from utils import apply_filters
 
 load_dotenv(Path(__file__).parent / ".env")
 
