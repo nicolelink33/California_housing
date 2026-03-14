@@ -149,6 +149,7 @@ It is consumed by the map visualization, the two value boxes for median house va
 User interactions on the `querychat_geo_cluster_plot` trigger a feedback event that refines the DataFrame `_ai_df` filter, allowing for "drill-down" analysis without manual slider adjustments.
 
 
-## Section 6. Plot Details
+## Section 6. UI & Plot Details
 
 - 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
+- A note at the top of the sidebar reads "All measures are aggregated at the census block level." to clarify that all filter metrics apply at the census block level and not the county or household level.
