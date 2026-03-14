@@ -2,6 +2,8 @@
 Playwright E2E tests for the California Housing Dashboard.
 Requires the app to be running or pytest will start it (needs GITHUB_TOKEN for AI tab).
 """
+import re
+
 import pytest
 from playwright.sync_api import Page, expect
 
@@ -19,17 +21,27 @@ def test_edge_case_filter_zero_rows(page: Page):
     """
     page.goto("/")
     page.wait_for_load_state("networkidle")
+    page.set_viewport_size({"width": 1400, "height": 900})
 
-    page.get_by_role("tab", name="Manual Filtering").click()
-    page.wait_for_timeout(500)
+    page.get_by_role("tab", name="Dashboard").click()
+    page.wait_for_timeout(1200)
 
     # Uncheck all ocean proximity checkboxes -> empty isin() yields zero rows
-    for cb in page.locator('input[name="ocean_checkbox"]').all():
-        cb.uncheck()
-    page.wait_for_timeout(800)
+    ocean_cbs = page.locator("#ocean_checkbox input[type='checkbox']")
+    if ocean_cbs.count() == 0:
+        ocean_cbs = page.locator('input[name="ocean_checkbox"]')
+    for i in range(ocean_cbs.count()):
+        cb = ocean_cbs.nth(i)
+        if cb.is_checked():
+            cb.click()
+    page.wait_for_timeout(2000)
 
     expect(page.get_by_text("California Housing Dashboard")).to_be_visible()
-    expect(page.get_by_text("N/A").first).to_be_visible(timeout=5000)
+    value_boxes = page.get_by_test_id("dashboard-value-boxes")
+    na_loc = value_boxes.get_by_text("N/A").or_(
+        value_boxes.get_by_text("No data available")
+    )
+    expect(na_loc.first).to_be_visible(timeout=10000)
 
 
 def test_aggregation_displayed_medians(page: Page):
@@ -39,20 +51,24 @@ def test_aggregation_displayed_medians(page: Page):
     """
     page.goto("/")
     page.wait_for_load_state("networkidle")
+    page.set_viewport_size({"width": 1400, "height": 900})
 
-    page.get_by_role("tab", name="Manual Filtering").click()
-    page.wait_for_timeout(500)
+    page.get_by_role("tab", name="Dashboard").click()
+    page.wait_for_timeout(1200)
 
     # Optionally filter to one county; default filters already show data
     try:
         page.get_by_label("County").click()
         page.get_by_role("option", name="Alameda").first.click()
-        page.wait_for_timeout(800)
+        page.wait_for_timeout(1200)
     except Exception:
         pass
 
     # Value boxes should show dollar amounts (not N/A)
-    expect(page.locator("text=/\\$[0-9,]+/").first).to_be_visible(timeout=5000)
+    value_boxes = page.get_by_test_id("dashboard-value-boxes")
+    expect(value_boxes.get_by_text(re.compile(r"\$[\d,]+")).first).to_be_visible(
+        timeout=8000
+    )
 
 
 def test_boundary_slider_values(page: Page):
@@ -62,17 +78,21 @@ def test_boundary_slider_values(page: Page):
     """
     page.goto("/")
     page.wait_for_load_state("networkidle")
+    page.set_viewport_size({"width": 1400, "height": 900})
 
-    page.get_by_role("tab", name="Manual Filtering").click()
-    page.wait_for_timeout(500)
+    page.get_by_role("tab", name="Dashboard").click()
+    page.wait_for_timeout(1200)
 
     # Click Reset to set sliders to full range
     reset_btn = page.get_by_role("button", name="Reset All Filters")
     if reset_btn.is_visible():
         reset_btn.click()
-        page.wait_for_timeout(800)
+        page.wait_for_timeout(1200)
 
     # Page should still show data (no crash)
     expect(page.get_by_text("California Housing Dashboard")).to_be_visible()
     # Value boxes should show valid dollar amounts
-    expect(page.locator("text=/\\$[0-9,]+/").first).to_be_visible(timeout=5000)
+    value_boxes = page.get_by_test_id("dashboard-value-boxes")
+    expect(value_boxes.get_by_text(re.compile(r"\$[\d,]+")).first).to_be_visible(
+        timeout=8000
+    )

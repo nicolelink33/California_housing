@@ -561,13 +561,16 @@ app_ui = ui.page_fluid(
                     # Column 1
                     ui.layout_columns(
                             
-                        # Value Boxes
-                        ui.layout_column_wrap(
-                            ui.output_ui("median_house"),
-                            ui.output_ui("median_income"),
-                            width=1/2,
-                            heights_equal="all",
-                            fill=True
+                        # Value Boxes (data-testid for E2E tests)
+                        ui.div(
+                            ui.layout_column_wrap(
+                                ui.output_ui("median_house"),
+                                ui.output_ui("median_income"),
+                                width=1/2,
+                                heights_equal="all",
+                                fill=True
+                            ),
+                            data_testid="dashboard-value-boxes",
                         ),
 
                         # Map Visualization
