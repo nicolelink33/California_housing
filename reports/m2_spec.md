@@ -161,3 +161,4 @@ User interactions on the `querychat_geo_cluster_plot` trigger a feedback event t
 
 - 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
 - A note at the top of the sidebar reads "All measures are aggregated at the census block level." to clarify that all filter metrics apply at the census block level and not the county or household level.
+- Rename 'Manual Filtering' tab to 'Dashboard'.

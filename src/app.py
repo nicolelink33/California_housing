@@ -364,7 +364,7 @@ app_ui = ui.page_fluid(
     ui.navset_pill(
 
         # ── Tab 1: Traditional Dashboard ─────────────────────────────────────────
-        ui.nav_panel("Manual Filtering", 
+        ui.nav_panel("Dashboard", 
 
             ui.layout_sidebar(
                 # Sidebar inputs
