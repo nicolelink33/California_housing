@@ -895,6 +895,31 @@ def server(input, output, session):
             <span style="color:#f46d43;">&#9632;</span> $200k – $300k<br>
             <span style="color:#d73027;">&#9632;</span> &gt; $300k
             </div>
+
+            <div style="
+                    position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+                <div style="position: relative; display: inline-block;">
+                    <div style="
+                        width: 26px; height: 26px; border-radius: 50%;
+                        background: white; border: 1px solid #ccc;
+                        box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 14px; cursor: default; user-select: none;"
+                    onmouseenter="document.getElementById('map-tip').style.display='block'"
+                    onmouseleave="document.getElementById('map-tip').style.display='none'">
+                    ℹ️
+                    </div>
+                    <div id="map-tip" style="
+                        display: none; position: absolute;
+                        bottom: 32px; right: 0;
+                        background: white; border: 1px solid #ccc; border-radius: 8px;
+                        padding: 8px 12px; font-size: 12px; white-space: nowrap;
+                        box-shadow: 2px 2px 6px rgba(0,0,0,0.2); color: #333;">
+                    🖱️ <b>Click</b> a county to filter<br>
+                    ⇧ <b>Shift+click</b> to select multiple
+                    </div>
+                </div>
+            </div>   
             """
         m.get_root().html.add_child(folium.Element(legend_html))
 
