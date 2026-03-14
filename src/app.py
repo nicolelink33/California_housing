@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 import folium
+
+from utils import apply_filters
 from folium.plugins import MarkerCluster
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -515,9 +517,10 @@ app_ui = ui.page_fluid(
                         
                         # Distribution Plots
                         ui.card(
+                            ui.card_header("State vs Selected Data Distribution:"),
                             ui.input_select(
                                 id="distribution_var",
-                                label="Distribution:",
+                                label=None,
                                 choices={
                                     "median_house_value": "Median House Value",
                                     "median_income": "Median Income",
@@ -536,9 +539,10 @@ app_ui = ui.page_fluid(
 
                         # Comparison Scatterplot
                         ui.card(
+                            ui.card_header("Median House Value versus:"),
                             ui.input_select(
                                 id="comparison_var",
-                                label="Comparison:",
+                                label=None,
                                 choices={
                                     "median_income": "Median Income",
                                     #"housing_median_age": "House Age",
@@ -556,6 +560,7 @@ app_ui = ui.page_fluid(
 
                         # Ocean Proximity Boxplots
                         ui.card(
+                            ui.card_header("Median House Value by Ocean Proximity:"),
                             ui.output_plot("boxplot_proximity"),
                             max_height="300px",
                             class_="plot-card",
@@ -713,23 +718,17 @@ def server(input, output, session):
     # Filter dataset
     @reactive.calc
     def filtered_data():
-        idx_house_val = processed_data.median_house_value.between(
-            left=input.house_val_slider()[0], right=input.house_val_slider()[1], inclusive="both"
-        )
-        idx_income = processed_data.median_income_usd.between(
-            left=input.income_slider()[0], right=input.income_slider()[1], inclusive="both"
-        )
-        idx_age = processed_data.housing_median_age.between(
-            left=input.age_slider()[0], right=input.age_slider()[1], inclusive="both"
-        )
-        idx_rooms = processed_data.total_rooms.between(
-            left=input.rooms_slider()[0], right=input.rooms_slider()[1], inclusive="both"
-        )
-        idx_beds = processed_data.total_bedrooms.between(
-            left=input.beds_slider()[0], right=input.beds_slider()[1], inclusive="both"
-        )
-        idx_pop = processed_data.population.between(
-            left=input.pop_slider()[0], right=input.pop_slider()[1], inclusive="both"
+        return apply_filters(
+            processed_data,
+            house_val_range=tuple(input.house_val_slider()),
+            income_range=tuple(input.income_slider()),
+            age_range=tuple(input.age_slider()),
+            rooms_range=tuple(input.rooms_slider()),
+            beds_range=tuple(input.beds_slider()),
+            pop_range=tuple(input.pop_slider()),
+            households_range=tuple(input.households_slider()),
+            ocean_proximity=list(input.ocean_checkbox()),
+            county_select=list(input.county_select() or []),
         )
         idx_households = processed_data.households.between(
             left=input.households_slider()[0], right=input.households_slider()[1], inclusive="both"
@@ -936,6 +935,31 @@ def server(input, output, session):
             <span style="color:#f46d43;">&#9632;</span> $200k – $300k<br>
             <span style="color:#d73027;">&#9632;</span> &gt; $300k
             </div>
+
+            <div style="
+                    position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+                <div style="position: relative; display: inline-block;">
+                    <div style="
+                        width: 26px; height: 26px; border-radius: 50%;
+                        background: white; border: 1px solid #ccc;
+                        box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 14px; cursor: default; user-select: none;"
+                    onmouseenter="document.getElementById('map-tip').style.display='block'"
+                    onmouseleave="document.getElementById('map-tip').style.display='none'">
+                    ℹ️
+                    </div>
+                    <div id="map-tip" style="
+                        display: none; position: absolute;
+                        bottom: 32px; right: 0;
+                        background: white; border: 1px solid #ccc; border-radius: 8px;
+                        padding: 8px 12px; font-size: 12px; white-space: nowrap;
+                        box-shadow: 2px 2px 6px rgba(0,0,0,0.2); color: #333;">
+                    🖱️ <b>Click</b> a county to filter<br>
+                    ⇧ <b>Shift+click</b> to select multiple
+                    </div>
+                </div>
+            </div>   
             """
         m.get_root().html.add_child(folium.Element(legend_html))
 

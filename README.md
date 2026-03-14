@@ -71,6 +71,21 @@ shiny run --reload src/app.py
 
 Open http://127.0.0.1:8000 in your browser.
 
+## Testing
+
+Run all tests (unit + E2E) with:
+
+```bash
+conda activate dsci-532-dashboard  # or california-housing
+playwright install                 # one-time: download browser binaries
+pytest --base-url http://127.0.0.1:8765
+```
+
+- **Unit tests** (`tests/test_utils.py`): pytest tests for filtering and aggregation logic.
+- **E2E tests** (`tests/test_e2e.py`): Playwright tests; they start the Shiny app automatically. The AI Chatbot tab requires `GITHUB_TOKEN` in `.env` for the app to start; if missing, E2E tests may be skipped.
+
+See [TESTING.md](TESTING.md) for test coverage and reflection.
+
 ## Contributing
 
 Contributions, issues, and suggestions are welcome.
