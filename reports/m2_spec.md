@@ -122,3 +122,54 @@ This calculation is consumed by the map visualization, the two value boxes for m
 - A download button `download_button_ui` to export and download the filtered DataFrame `_ai_df` to a CSV format file.
 - A dropdown menu `querychat_distribution_var` to select which `querychat_distribution_plot` to be showed.
 User interactions on the `querychat_geo_cluster_plot` trigger a feedback event that refines the DataFrame `_ai_df` filter, allowing for "drill-down" analysis without manual slider adjustments.
+
+## Section 5: Testing Specification
+
+The testing suite documents expected behavior and makes it clear what breaks if core logic changes. It is not intended for full coverage.
+
+### 5.1 Test Format and Structure
+
+- **Unit tests (pytest)**: Test functions in isolation with explicit inputs and expected outputs.
+- **Integration/E2E tests (Playwright)**: Exercise the running app in a browser to verify user-facing behaviors.
+
+### 5.2 Requirements
+
+| Requirement | Description |
+| ----------- | ----------- |
+| Playwright tests | At least 3 distinct behaviors (e.g., edge-case filter, aggregation correctness, data type or boundary condition). |
+| Refactoring | Extract at least 1 pure function from the app and write a pytest unit test for it. |
+| Descriptions | Each test must include a one-sentence docstring explaining what behavior is verified and why it matters for the dashboard. |
+| Environment | Tests must pass on a clean environment (after `conda env create -f environment.yml`). |
+| Execution | A single command runs all tests (e.g., `pytest` or `make test`). |
+| Documentation | How to run tests is documented in the README. |
+
+### 5.3 Proposed Test Plan
+
+#### Unit tests (pytest)
+
+| Test | Function / Logic | What it verifies |
+| ---- | ---------------- | ---------------- |
+| `test_apply_filters_returns_subset` | `apply_filters(df, ...)` (to be extracted) | Given explicit slider/checkbox/county inputs, the filter returns a subset of rows whose columns satisfy the specified ranges; verifies core filtering logic. |
+| `test_apply_filters_empty_county_select` | `apply_filters(df, county_select=[])` | When no county is selected, all counties are included; documents the "no selection = show all" behavior. |
+| `test_create_median_house_value_box_empty_df` | `create_median_house_value_box` | Empty or invalid DataFrame produces a safe fallback value box (e.g., "N/A"); prevents crashes when filters yield no data. |
+| `test_create_median_income_box_aggregation` | `create_median_income_box` | Median of filtered data is computed correctly and compared to state median; verifies aggregation and percentage calculation. |
+
+#### Playwright tests (E2E)
+
+| Test | Behavior | What it verifies |
+| ---- | -------- | ---------------- |
+| Edge-case filter | Apply filters that result in zero rows (e.g., disjoint slider ranges). | Dashboard shows "No data" or equivalent instead of crashing; value boxes and plots handle empty state. |
+| Aggregation correctness | Filter to a known subset (e.g., single county), read displayed median. | Displayed median house value and median income match expected values from the filtered dataset. |
+| Data type / boundary | Use sliders at min/max bounds or extreme values. | App handles boundary inputs without errors; displayed data is within expected ranges. |
+
+### 5.4 Implementation Tasks
+
+1. **Refactor**: Extract `apply_filters(df, house_val_range, income_range, ...)` into a pure function in a module (e.g., `src/utils.py` or within `app.py`) that takes a DataFrame and filter parameters and returns the filtered DataFrame.
+2. **Unit tests**: Create `tests/test_utils.py` with pytest tests for the refactored function and existing helpers (e.g., `create_median_house_value_box`, `create_median_income_box`).
+3. **Playwright setup**: Add `pytest-playwright` (or equivalent) to `environment.yml` / `requirements.txt`; add `tests/test_e2e.py` with at least 3 Playwright tests.
+4. **README**: Add a "Testing" section with the single command to run all tests and any setup (e.g., `playwright install` for browsers).
+5. **Reflection**: Add a short reflection (`TESTING.md`) describing what each test covers and what would break if the behavior changed.
+
+
+## Section 6. Plot Details
+- 'Reset View' button on the map resets the view after zooming
