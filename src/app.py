@@ -636,6 +636,12 @@ def house_value_color(value):
 
 def server(input, output, session):
     # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
+    
+    # Reactive value to hold counties selected via map clicks.
+    # Plain click - replace selection with that county.
+    # Shift+click - toggle that county in/out of the current selection.
+    selected_counties_rv = reactive.value([])
+
     @reactive.effect
     @reactive.event(input.reset_button)
     def _():
@@ -653,6 +659,36 @@ def server(input, output, session):
         
         # Reset Selectize (County)
         ui.update_selectize("county_select", selected=[])
+
+        # Clear map-click county selection on reset
+        selected_counties_rv.set([])
+
+    # Handle county click events fired from the Folium map
+    @reactive.effect
+    @reactive.event(input.map_county_click)
+    def _handle_map_county_click():
+        event = input.map_county_click()
+        if not event or "county" not in event:
+            return
+        clicked = event["county"]
+        shift_held = event.get("shift", False)
+        current = list(selected_counties_rv())
+        if shift_held:
+            # Shift+click: toggle the clicked county in/out of the selection
+            if clicked in current:
+                current.remove(clicked)
+            else:
+                current.append(clicked)
+            selected_counties_rv.set(current)
+        else:
+            # Plain click: if the county is already the sole selection, deselect it;
+            # otherwise replace the selection with just this county
+            if current == [clicked]:
+                selected_counties_rv.set([])
+            else:
+                selected_counties_rv.set([clicked])
+        # Keep the county_select dropdown in sync with the map selection
+        ui.update_selectize("county_select", selected=selected_counties_rv())
 
     # Filter dataset
     @reactive.calc
@@ -680,9 +716,13 @@ def server(input, output, session):
         )
         idx_ocean = processed_data.ocean_proximity.isin(input.ocean_checkbox())
 
-        # Selected counties from dashboard
-        selected_counties = list(input.county_select() or [])
-        selected_counties = [c.strip() for c in selected_counties] 
+        #Merge counties from the dropdown and from map clicks (union).
+        # If neither source has any selection, no county filter is applied.
+        dropdown_counties = list(input.county_select() or [])
+        map_counties = list(selected_counties_rv() or [])
+        selected_counties = list(set(
+            [c.strip() for c in dropdown_counties] + [c.strip() for c in map_counties]
+        ))
 
         idx_county = (
             processed_data.county.isin(selected_counties)
@@ -769,15 +809,21 @@ def server(input, output, session):
 
         folium.TileLayer("OpenStreetMap", name="Street Map").add_to(m)
 
+        # Read currently selected counties to drive highlight styling
+        active_counties = set(selected_counties_rv())
+
+        def county_style(feature):
+            """Style GeoJson counties; highlight map-click selected ones."""
+            name = feature.get("properties", {}).get("county", "")
+            if name in active_counties:
+                # Selected county: solid teal fill
+                return {"fillColor": "#2ca25f", "color": "#006d2c", "weight": 2.0, "fillOpacity": 0.45}
+            return {"fillColor": "#f0f0f0", "color": "#444444", "weight": 1.2, "fillOpacity": 0.15}
+        
         folium.GeoJson(
             counties_geojson,
             name="Counties",
-            style_function=lambda feature: {
-                "fillColor": "#f0f0f0",
-                "color": "#444444",
-                "weight": 1.2,
-                "fillOpacity": 0.15,
-            },
+            style_function=county_style,
             tooltip=folium.GeoJsonTooltip(
                 fields=["county"],
                 aliases=["County:"],
@@ -824,20 +870,61 @@ def server(input, output, session):
             """
         m.get_root().html.add_child(folium.Element(legend_html))
 
+        # Inject a JavaScript listener that fires a Shiny input event
+        # whenever the user clicks a county polygon on the map.
+
+        county_click_js = """
+        <script>
+        (function() {
+            function attachCountyClick(map) {
+                map.eachLayer(function(layer) {
+                    if (layer.eachLayer) {
+                        layer.eachLayer(function(subLayer) {
+                            if (subLayer.feature && subLayer.feature.properties && subLayer.feature.properties.county) {
+                                subLayer.on('click', function(e) {
+                                    var countyName = subLayer.feature.properties.county;
+                                    var shiftHeld = e.originalEvent && e.originalEvent.shiftKey;
+                                    // Use window.parent.Shiny -- Shiny lives on the parent page,
+                                    // not inside this Folium iframe
+                                    var shiny = window.parent && window.parent.Shiny;
+                                    if (shiny) {
+                                        shiny.setInputValue('map_county_click', {
+                                            county: countyName,
+                                            shift: shiftHeld
+                                        }, {priority: 'event'});
+                                    }
+                                    L.DomEvent.stopPropagation(e);
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            // The Leaflet map lives in this iframe's window -- search here, not window.parent
+            var tries = 0;
+            var interval = setInterval(function() {
+                tries++;
+                var maps = Object.values(window).filter(function(v) {
+                    return v && v._container && v.eachLayer;
+                });
+                if (maps.length > 0) {
+                    maps.forEach(attachCountyClick);
+                    clearInterval(interval);
+                } else if (tries > 40) {
+                    clearInterval(interval);
+                }
+            }, 250);
+        })();
+        </script>
+        """
+        m.get_root().html.add_child(folium.Element(county_click_js))
+
         folium.LayerControl().add_to(m)
 
-        _ = input.reset_map_btn()
         map_html = m._repr_html_()
-        map_html = map_html.replace(
-            '<div style="width:100%;">',
-            '<div class="map-container-outer" style="width:100%;height:100%;">',
-            1,
-        )
-        map_html = map_html.replace(
-            'div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
-            'div class="map-container-inner" style="position:relative;width:100%;height:100%;min-height:300px;"',
-            1,
-        )
+        map_html = map_html.replace('div style="position:relative;width:100%;height:0;padding-bottom:60%;"',
+                    'div style="width:100%;height:100%;padding-bottom:60%;"')  # Ensure the map fills the container
         return ui.HTML(f'{map_html}')
 
     
