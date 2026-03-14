@@ -85,7 +85,7 @@ flowchart TD
   M --> P5
 ```
 ````
-![Reactivity Diagram](../img/reactivity_parquet.png)
+![Reactivity Diagram](../img/reactivity.png)
 
 ### 3.2 AI Chatbot Tab
 ````markdown
