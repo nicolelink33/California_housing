@@ -13,7 +13,7 @@ from pathlib import Path
 
 import folium
 
-from src.utils import apply_filters
+from utils import apply_filters
 from folium.plugins import MarkerCluster
 import ibis
 from ibis import _, literal
@@ -46,13 +46,16 @@ Rooms_max = int(parquet.total_rooms.max().to_pandas())
 Beds_min = int(parquet.total_bedrooms.min().to_pandas())
 Beds_max = int(parquet.total_bedrooms.max().to_pandas())
 
-county_list = (parquet.county
-               .dropna()
-               .unique()
-               .sort()
-               .to_pandas()
-               .tolist()
-               )
+county_list = (
+    parquet
+    .filter(parquet.county.notnull())  # 1. Filter nulls
+    .select("county")                  # 2. Keep it as a Table object
+    .distinct()                        # 3. Now distinct works on the Table
+    .order_by("county")                 # 4. Use sort_by for Table objects
+    .to_pandas()                       # 5. Convert to Pandas
+    ["county"]                         # 6. Grab the column from the resulting DF
+    .tolist()                          # 7. Final List
+)
 
 Income_min = int(parquet.median_income_usd.min().to_pandas())
 Income_75q = int(parquet.median_income_usd.quantile(0.75).to_pandas())
@@ -676,7 +679,6 @@ def house_value_color(value):
         return "#d73027"   # most expensive
 
 def server(input, output, session):
-    session.on_ended(con.disconnect)     # clean up when user leaves
 
     # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
     @reactive.effect
@@ -699,19 +701,23 @@ def server(input, output, session):
 
     # Filter dataset
     @reactive.calc
-    def filtered_data():
+    def filtered_expr():
         return apply_filters(
-            processed_data,
-            house_val_range=tuple(input.house_val_slider()),
-            income_range=tuple(input.income_slider()),
-            age_range=tuple(input.age_slider()),
-            rooms_range=tuple(input.rooms_slider()),
-            beds_range=tuple(input.beds_slider()),
-            pop_range=tuple(input.pop_slider()),
-            households_range=tuple(input.households_slider()),
-            ocean_proximity=list(input.ocean_checkbox()),
+            parquet,
+            house_val_range=input.house_val_slider(),
+            income_range=input.income_slider(),
+            age_range=input.age_slider(),
+            rooms_range=input.rooms_slider(),
+            beds_range=input.beds_slider(),
+            pop_range=input.pop_slider(),
+            households_range=input.households_slider(),
+            ocean_proximity=input.ocean_checkbox(),
             county_select=list(input.county_select() or []),
         )
+
+    @reactive.calc
+    def filtered_data():
+        return filtered_expr().to_pandas()
 
     # Median House Value
     @render.ui
@@ -722,7 +728,7 @@ def server(input, output, session):
             return ui.value_box("Median house value", "N/A", "No data available")
 
         filt_value = round(df.median_house_value.median(), 1)
-        state_value = round(processed_data.median_house_value.median().execute(), 1)
+        state_value = state_median_house_value
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -751,7 +757,7 @@ def server(input, output, session):
             return ui.value_box("Median income", "N/A", "No data available")
 
         filt_value = round(df.median_income_usd.median(), 1)
-        state_value = round(processed_data.median_income_usd.median().execute(), 1)
+        state_value = state_median_income
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -884,7 +890,7 @@ def server(input, output, session):
         metric_to_use = "median_income_usd" if metric == "median_income" else metric
 
         selected_vals = df[metric_to_use].dropna()
-        state_vals = processed_data[metric_to_use].execute().dropna()
+        state_vals = state_df[metric_to_use].dropna()
 
         if selected_vals.empty:
             ax.text(0.5, 0.5, "No data for current filters", ha="center", va="center")
@@ -1037,7 +1043,7 @@ def server(input, output, session):
         """Get querychat filtered dataframe as pandas DataFrame."""
         df = qc_vals.df()
         if df is None:
-            return processed_data
+            return state_df
         if hasattr(df, "to_pandas"):
             return df.to_pandas()
         if hasattr(df, "to_native"):
@@ -1072,7 +1078,7 @@ def server(input, output, session):
     
     @render.plot
     def querychat_distribution_plot():
-        return create_distribution_plot(_ai_df(), input.querychat_distribution_var(), processed_data)
+        return create_distribution_plot(_ai_df(), input.querychat_distribution_var(), state_df)
     
     @render.ui
     def download_button_ui():
