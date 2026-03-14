@@ -70,10 +70,10 @@ flowchart TD
   H[/households_slider/] --> J
   I[/ocean_checkbox/] --> J
 
-  MC[/map_county_click/] --> SRV
+  MC[/map_county_click/] --> SRV{{selected_counties_rv}}
   SRV --> J
   SRV --> P3
-  SRV --> county_banner
+  SRV --> county_banner([county_banner])
 
   RMB[/reset_map_btn/] --> P3
 
