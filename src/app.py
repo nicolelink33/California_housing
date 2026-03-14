@@ -1212,10 +1212,20 @@ def server(input, output, session):
         if hasattr(df, "to_native"):
             return df.to_native()
         return df if isinstance(df, pd.DataFrame) else pd.DataFrame(df)
-    
+
     @render.ui
     def querychat_geo_cluster_plot():
-        map_html = create_geo_cluster_plot(_ai_df())
+        df = _ai_df()
+    
+        # 1. Check if the dataframe is empty
+        if df.empty:
+            return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
+
+        # 2. Check for required columns
+        if "longitude" not in df.columns or "latitude" not in df.columns:
+            return ui.div("Coordinates are missing in the data, so the map is not going to be shown.", style="padding:1rem;color:#888;")
+        
+        map_html = create_geo_cluster_plot(df)
         if map_html is None:
             return ui.div("No data matches the current filters.", style="padding:1rem;color:#888;")
         map_html = map_html.replace(
@@ -1232,16 +1242,37 @@ def server(input, output, session):
 
     @render.ui
     def querychat_median_house():
-        return create_median_house_value_box(_ai_df())
+        df = _ai_df()
+        
+        # Check if the required column exists
+        if "median_house_value" not in df.columns:
+            return ui.div("'median_house_value' column is missing in the data, so this box is not going to be shown.", style="padding:1rem;color:#888;")
+        return create_median_house_value_box(df)
 
     # Median Income Value
     @render.ui
     def querychat_median_income():
-        return create_median_income_box(_ai_df())
+        df = _ai_df()
+        
+        # Check if the required column exists
+        if "median_income_usd" not in df.columns:
+            return ui.div("'median_income_usd' column is missing in the data, so this box is not going to be shown.", style="padding:1rem;color:#888;")
+        return create_median_income_box(df)
     
     @render.plot
     def querychat_distribution_plot():
-        return create_distribution_plot(_ai_df(), input.querychat_distribution_var(), state_df)
+        df = _ai_df()
+        metric = input.querychat_distribution_var()
+        col_to_check = "median_income_usd" if metric == "median_income" else metric
+
+        if df.empty or col_to_check not in df.columns:
+            fig, ax = plt.subplots(figsize=(5.0, 2.6))
+            msg = "No data matches the current filters." if df.empty else f"Column '{col_to_check}' is missing in the data, so this graph is not going to be shown."
+            ax.text(0.5, 0.5, msg, ha="center", va="center")
+            ax.set_axis_off()
+            return fig
+
+        return create_distribution_plot(df, input.querychat_distribution_var(), state_df)
     
     @render.ui
     def download_button_ui():

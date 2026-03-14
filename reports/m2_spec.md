@@ -149,6 +149,9 @@ It is consumed by the map visualization, the two value boxes for median house va
 - A download button `download_button_ui` to export and download the filtered DataFrame `_ai_df` to a CSV format file.
 - A dropdown menu `querychat_distribution_var` to select which `querychat_distribution_plot` to be showed.
 User interactions on the `querychat_geo_cluster_plot` trigger a feedback event that refines the DataFrame `_ai_df` filter, allowing for "drill-down" analysis without manual slider adjustments.
+- The value boxes (`querychat_median_house` and `querychat_median_income`) validate the presence of median_house_value and median_income_usd columns respectively.
+- The `querychat_geo_cluster_plot` requires both latitude and longitude columns to render; if missing, the map is replaced by a notification stating that location coordinates were not provided in the AI response.
+- The `querychat_distribution_plot` requires the specific column selected in the dropdown to exist within _ai_df; otherwise, it displays a meaningful error message explaining the missing data.
 
 ## Section 5: Testing Specification
 
