@@ -60,7 +60,7 @@ flowchart TD
   RB[/reset_button/] -- updates --> A & B & C & D & E & F & G & H & I
   RB -- clears --> SRV{{selected_counties_rv}}
 
-  A[/house_val_slider/] --> J{{filtered_df}}
+  A[/house_val_slider/] --> J[(parquet - on disk)]
   B[/county_select/] --> J
   C[/income_slider/] --> J
   D[/age_slider/] --> J
@@ -77,15 +77,17 @@ flowchart TD
 
   RMB[/reset_map_btn/] --> P3
 
-  J --> P1([median_house])
-  J --> P2([median_income])
-  J --> P3([geo_cluster_plot])
-  J --> P6([boxplot_proximity])
+  J --> M([filtered_df])
+  M --> P1([median_house])
+  M --> P2([median_income])
+  M --> P3([geo_cluster_plot])
+  M --> P6([boxplot_proximity])
   K[/distribution_var/] --> P4([distribution_plot])
-  J --> P4
+  M --> P4
   L[/comparison_var/] --> P5([comparison_scatter])
-  J --> P5
-  B[/county_select/] --> county_banner
+
+  B --> county_banner
+  M --> P5
 ```
 ````
 ![Reactivity Diagram](../img/reactivity.png)
@@ -131,7 +133,7 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 - `county_select` - selected California counties to include
 - `selected_counties_rv` - counties selected via map clicks (merged with `county_select`)
 
-This calculation filters the rows of the raw dataframe to all selected input values.
+This calculation filters the rows of the raw dataframe to all selected input values. It does lazy loading with parquet and DuckDB to only draw the requested rows into memory.
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
 
 **County Banner:**
