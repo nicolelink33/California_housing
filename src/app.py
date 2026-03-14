@@ -59,14 +59,18 @@ California housing values in 1990 (aggregated to approximately 20,000 California
     client=ChatGithub(model="gpt-4.1-mini"),
 )
 
+# compute state medians
+state_median_house_value = processed_data.median_house_value.median().execute()
+state_median_income = processed_data.median_income_usd.median().execute()
+
+
 def create_median_house_value_box(df):
     if df is None or df.empty or "median_house_value" not in df.columns:
         return ui.value_box("Median house value", "N/A", "No data available")
 
     filt_value = round(df.median_house_value.median(), 1)
-    state_value = round(processed_data.median_house_value.median(), 1)
 
-    diff = round(((filt_value - state_value) / state_value) * 100, 1)
+    diff = round(((filt_value - state_median_house_value) / state_median_house_value) * 100, 1)
     if diff > 0:
         arrow = "↑"
     elif diff < 0:
@@ -95,9 +99,8 @@ def create_median_income_box(df):
         return ui.value_box("Median income", "N/A", "No data available")
 
     filt_value = round(df.median_income_usd.median(), 1)
-    state_value = round(processed_data.median_income_usd.median(), 1)
 
-    diff = round(((filt_value - state_value) / state_value) * 100, 1)
+    diff = round(((filt_value - state_median_income) / state_median_income) * 100, 1)
     if diff > 0:
         arrow = "↑"
     elif diff < 0:
@@ -679,7 +682,7 @@ def server(input, output, session):
             return ui.value_box("Median house value", "N/A", "No data available")
 
         filt_value = round(df.median_house_value.median(), 1)
-        state_value = round(processed_data.median_house_value.median(), 1)
+        state_value = round(processed_data.median_house_value.median().execute(), 1)
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -708,7 +711,7 @@ def server(input, output, session):
             return ui.value_box("Median income", "N/A", "No data available")
 
         filt_value = round(df.median_income_usd.median(), 1)
-        state_value = round(processed_data.median_income_usd.median(), 1)
+        state_value = round(processed_data.median_income_usd.median().execute(), 1)
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -832,7 +835,7 @@ def server(input, output, session):
         metric_to_use = "median_income_usd" if metric == "median_income" else metric
 
         selected_vals = df[metric_to_use].dropna()
-        state_vals = processed_data[metric_to_use].dropna()
+        state_vals = processed_data[metric_to_use].execute().dropna()
 
         if selected_vals.empty:
             ax.text(0.5, 0.5, "No data for current filters", ha="center", va="center")
