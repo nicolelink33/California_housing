@@ -9,20 +9,74 @@ from shinywidgets import output_widget, render_widget
 import querychat
 from chatlas import ChatGithub
 from dotenv import load_dotenv
+import sys
 from pathlib import Path
 
 import folium
+from folium.plugins import MarkerCluster
+import ibis
+from ibis import _, literal
+import duckdb
+
+# Set up utils path to work both locally and on Posit Connect
+src_path = str(Path(__file__).parent)
+if src_path not in sys.path:
+    sys.path.append(src_path)
 
 from utils import apply_filters
-from folium.plugins import MarkerCluster
 
 load_dotenv(Path(__file__).parent / ".env")
 
-# Import dataset
-processed_data = pd.read_csv("data/processed/housing_with_county.csv")
+# Import dataset and convert to parquet - for filtering
+con = ibis.duckdb.connect() 
+parquet = con.read_parquet("data/processed/housing_with_county.parquet", table_name="housing")
+
+# Load whole dataset to use in querychat: 
+state_df = parquet.execute()
+#processed_data = pd.read_csv("data/processed/housing_with_county.csv")
+
+# Compute state medians
+state_median_house_value = parquet.median_house_value.median().to_pandas()
+state_median_income = parquet.median_income_usd.median().to_pandas()
+
+# Compute dataset min and maxes to use as filter inputs
+House_min = int(parquet.median_house_value.min().to_pandas())
+House_max = int(parquet.median_house_value.max().to_pandas())
+
+Age_min = int(parquet.housing_median_age.min().to_pandas())
+Age_max = int(parquet.housing_median_age.max().to_pandas())
+
+Rooms_min = int(parquet.total_rooms.min().to_pandas())
+Rooms_max = int(parquet.total_rooms.max().to_pandas())
+
+Beds_min = int(parquet.total_bedrooms.min().to_pandas())
+Beds_max = int(parquet.total_bedrooms.max().to_pandas())
+
+county_list = (
+    parquet
+    .filter(parquet.county.notnull())  # 1. Filter nulls
+    .select("county")                  # 2. Keep it as a Table object
+    .distinct()                        # 3. Now distinct works on the Table
+    .order_by("county")                 # 4. Use sort_by for Table objects
+    .to_pandas()                       # 5. Convert to Pandas
+    ["county"]                         # 6. Grab the column from the resulting DF
+    .tolist()                          # 7. Final List
+)
+
+Income_min = int(parquet.median_income_usd.min().to_pandas())
+Income_75q = int(parquet.median_income_usd.quantile(0.75).to_pandas())
+Income_max = int(parquet.median_income_usd.max().to_pandas())
+
+Pop_min = int(parquet.population.min().to_pandas())
+Pop_max = int(parquet.population.max().to_pandas())
+
+Households_min = int(parquet.households.min().to_pandas())
+Households_max = int(parquet.households.max().to_pandas())
+
 
 # Convert median_income from 10k USD to USD
-processed_data["median_income_usd"] = processed_data["median_income"] * 10000
+#processed_data["median_income_usd"] = processed_data["median_income"] * 10000
+#processed_data = processed_data.mutate(median_income_usd = processed_data.median_income * 10000)
 
 # Load california counties geojson
 with open("data/raw/cal_counties.geojson") as f:
@@ -30,7 +84,7 @@ with open("data/raw/cal_counties.geojson") as f:
 
 # Set up querychat
 qc = querychat.QueryChat(
-    processed_data.copy(),
+    state_df,
     "housing",
     greeting="""👋 Ask me anything about California housing prices in 1990.
 
@@ -61,9 +115,8 @@ def create_median_house_value_box(df):
         return ui.value_box("Median house value", "N/A", "No data available")
 
     filt_value = round(df.median_house_value.median(), 1)
-    state_value = round(processed_data.median_house_value.median(), 1)
 
-    diff = round(((filt_value - state_value) / state_value) * 100, 1)
+    diff = round(((filt_value - state_median_house_value) / state_median_house_value) * 100, 1)
     if diff > 0:
         arrow = "↑"
     elif diff < 0:
@@ -92,9 +145,8 @@ def create_median_income_box(df):
         return ui.value_box("Median income", "N/A", "No data available")
 
     filt_value = round(df.median_income_usd.median(), 1)
-    state_value = round(processed_data.median_income_usd.median(), 1)
 
-    diff = round(((filt_value - state_value) / state_value) * 100, 1)
+    diff = round(((filt_value - state_median_income) / state_median_income) * 100, 1)
     if diff > 0:
         arrow = "↑"
     elif diff < 0:
@@ -117,7 +169,7 @@ def create_median_income_box(df):
         content,
     )
 
-def create_distribution_plot(df, metric, state_data=processed_data):
+def create_distribution_plot(df, metric, state_data=state_df):
     fig, ax = plt.subplots(figsize=(5.0, 2.6))
     ax.ticklabel_format(axis='y', style='plain')
 
@@ -378,32 +430,32 @@ app_ui = ui.page_fluid(
                             ui.input_slider(
                                 id="house_val_slider",
                                 label="Median house value:",
-                                min=processed_data.median_house_value.min(),
-                                max=processed_data.median_house_value.max(),
-                                value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()],
+                                min=House_min,
+                                max=House_max,
+                                value=[House_min, House_max],
                             ),
                             ui.input_slider(
                                 id="age_slider",
                                 label="House age:",
-                                min=processed_data.housing_median_age.min(),
-                                max=processed_data.housing_median_age.max(),
-                                value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()],
+                                min=Age_min,
+                                max=Age_max,
+                                value=[Age_min, Age_max],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="rooms_slider",
                                 label="Total rooms:",
-                                min=processed_data.total_rooms.min(),
-                                max=processed_data.total_rooms.max(),
-                                value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()],
+                                min=Rooms_min,
+                                max=Rooms_max,
+                                value=[Rooms_min, Rooms_max],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="beds_slider",
                                 label="Total bedrooms:",
-                                min=processed_data.total_bedrooms.min(),
-                                max=processed_data.total_bedrooms.max(),
-                                value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()],
+                                min=Beds_min,
+                                max=Beds_max,
+                                value=[Beds_min, Beds_max],
                                 step=1,
                             ),
                             ui.input_checkbox_group(
@@ -421,7 +473,7 @@ app_ui = ui.page_fluid(
                             ui.input_selectize(
                                 id="county_select",
                                 label="County:",
-                                choices=sorted(processed_data["county"].dropna().unique()),
+                                choices=county_list,
                                 selected=[],
                                 multiple=True
                             ),
@@ -431,25 +483,25 @@ app_ui = ui.page_fluid(
                             ui.input_slider(
                                 id="income_slider",
                                 label="Median income:",
-                                min=round(processed_data.median_income_usd.min(), 2),
-                                max=round(processed_data.median_income_usd.max(), 2),
-                                value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)],
+                                min=Income_min,
+                                max=Income_max,
+                                value=[Income_75q, Income_max],
                                 step=0.01,
                             ),
                             ui.input_slider(
                                 id="pop_slider",
                                 label="Population:",
-                                min=processed_data.population.min(),
-                                max=processed_data.population.max(),
-                                value=[processed_data.population.min(), processed_data.population.max()],
+                                min=Pop_min,
+                                max=Pop_max,
+                                value=[Pop_min, Pop_max],
                                 step=1,
                             ),
                             ui.input_slider(
                                 id="households_slider",
                                 label="Households:",
-                                min=processed_data.households.min(),
-                                max=processed_data.households.max(),
-                                value=[processed_data.households.min(), processed_data.households.max()],
+                                min=Households_min,
+                                max=Households_max,
+                                value=[Households_min, Households_max],
                                 step=1,
                             ),
                         ),
@@ -619,10 +671,6 @@ app_ui = ui.page_fluid(
         ),
 
         id="tab",
-        
-        #ui.nav_menu(
-        #    
-        #)
     ),
 
 )
@@ -640,6 +688,7 @@ def house_value_color(value):
         return "#d73027"   # most expensive
 
 def server(input, output, session):
+
     # ── Tab 1: reactive calcs ─────────────────────────────────────────────────
     
     # Reactive value to hold counties selected via map clicks.
@@ -651,13 +700,13 @@ def server(input, output, session):
     @reactive.event(input.reset_button)
     def _():
         # Reset Sliders
-        ui.update_slider("house_val_slider", value=[processed_data.median_house_value.min(), processed_data.median_house_value.max()])
-        ui.update_slider("income_slider", value=[round(processed_data.median_income_usd.quantile(0.75), 2), round(processed_data.median_income_usd.max(), 2)])
-        ui.update_slider("age_slider", value=[processed_data.housing_median_age.min(), processed_data.housing_median_age.max()])
-        ui.update_slider("rooms_slider", value=[processed_data.total_rooms.min(), processed_data.total_rooms.max()])
-        ui.update_slider("beds_slider", value=[processed_data.total_bedrooms.min(), processed_data.total_bedrooms.max()])
-        ui.update_slider("pop_slider", value=[processed_data.population.min(), processed_data.population.max()])
-        ui.update_slider("households_slider", value=[processed_data.households.min(), processed_data.households.max()])
+        ui.update_slider("house_val_slider", value=[House_min, House_max])
+        ui.update_slider("income_slider", value=[Income_75q, Income_max])
+        ui.update_slider("age_slider", value=[Age_min, Age_max])
+        ui.update_slider("rooms_slider", value=[Rooms_min, Rooms_max])
+        ui.update_slider("beds_slider", value=[Beds_min, Beds_max])
+        ui.update_slider("pop_slider", value=[Pop_min, Pop_max])
+        ui.update_slider("households_slider", value=[Households_min, Households_max])
         
         # Reset Checkbox Group
         ui.update_checkbox_group("ocean_checkbox", selected=["<1H OCEAN", "NEAR OCEAN", "NEAR BAY"])
@@ -697,17 +746,17 @@ def server(input, output, session):
 
     # Filter dataset
     @reactive.calc
-    def filtered_data():
+    def filtered_expr():
         return apply_filters(
-            processed_data,
-            house_val_range=tuple(input.house_val_slider()),
-            income_range=tuple(input.income_slider()),
-            age_range=tuple(input.age_slider()),
-            rooms_range=tuple(input.rooms_slider()),
-            beds_range=tuple(input.beds_slider()),
-            pop_range=tuple(input.pop_slider()),
-            households_range=tuple(input.households_slider()),
-            ocean_proximity=list(input.ocean_checkbox()),
+            parquet,
+            house_val_range=input.house_val_slider(),
+            income_range=input.income_slider(),
+            age_range=input.age_slider(),
+            rooms_range=input.rooms_slider(),
+            beds_range=input.beds_slider(),
+            pop_range=input.pop_slider(),
+            households_range=input.households_slider(),
+            ocean_proximity=input.ocean_checkbox(),
             county_select=list(input.county_select() or []),
         )
         idx_households = processed_data.households.between(
@@ -730,6 +779,10 @@ def server(input, output, session):
 
         return processed_data[idx_house_val & idx_income & idx_age & idx_rooms & idx_beds & idx_pop & idx_households & idx_ocean & idx_county]
 
+    @reactive.calc
+    def filtered_data():
+        return filtered_expr().to_pandas()
+
     # Median House Value
     @render.ui
     def median_house():
@@ -739,7 +792,7 @@ def server(input, output, session):
             return ui.value_box("Median house value", "N/A", "No data available")
 
         filt_value = round(df.median_house_value.median(), 1)
-        state_value = round(processed_data.median_house_value.median(), 1)
+        state_value = state_median_house_value
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -768,7 +821,7 @@ def server(input, output, session):
             return ui.value_box("Median income", "N/A", "No data available")
 
         filt_value = round(df.median_income_usd.median(), 1)
-        state_value = round(processed_data.median_income_usd.median(), 1)
+        state_value = state_median_income
 
         diff = round(((filt_value - state_value) / state_value) * 100, 1)
         if diff > 0:
@@ -1000,7 +1053,7 @@ def server(input, output, session):
         metric_to_use = "median_income_usd" if metric == "median_income" else metric
 
         selected_vals = df[metric_to_use].dropna()
-        state_vals = processed_data[metric_to_use].dropna()
+        state_vals = state_df[metric_to_use].dropna()
 
         if selected_vals.empty:
             ax.text(0.5, 0.5, "No data for current filters", ha="center", va="center")
@@ -1153,7 +1206,7 @@ def server(input, output, session):
         """Get querychat filtered dataframe as pandas DataFrame."""
         df = qc_vals.df()
         if df is None:
-            return processed_data
+            return state_df
         if hasattr(df, "to_pandas"):
             return df.to_pandas()
         if hasattr(df, "to_native"):
