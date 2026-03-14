@@ -34,6 +34,8 @@
 | `distribution_plot`   | Output        | `@render.plot`          | `filtered_df`,`distribution_var`    | #1, #2         |
 | `comparison_scatter`  | Output        | `@render.plot`          | `filtered_df`, `comparison_var`        | #1, #2         |
 | `boxplot_proximity`   | Output        | `@render.plot`          | `filtered_df`                | #1, #2         |
+| `county_banner`   | Output        | `@render.ui`          | `county_select`, `selected_counties_rv`                | #1, #2, #3         |
+
 
 ### 2.2: AI Chatbot Tab
 | ID            | Type          | Shiny widget / renderer   | Depends on                   | Job story  |
@@ -71,6 +73,7 @@ flowchart TD
   MC[/map_county_click/] --> SRV
   SRV --> J
   SRV --> P3
+  SRV --> county_banner
 
   RMB[/reset_map_btn/] --> P3
 
@@ -82,6 +85,7 @@ flowchart TD
   J --> P4
   L[/comparison_var/] --> P5([comparison_scatter])
   J --> P5
+  B[/county_select/] --> county_banner
 ```
 ````
 ![Reactivity Diagram](../img/reactivity.png)
@@ -129,6 +133,10 @@ The `@reactive.calc` `filtered_df` depends on the inputs:
 
 This calculation filters the rows of the raw dataframe to all selected input values.
 It is consumed by the map visualization, the two value boxes for median house value and median income value, and the three plots: the distribution plot, the comparison scatter plot, and the ocean proximity box plot.
+
+**County Banner:**
+
+The `county_banner` output displays the currently active county selection below the dashboard subtitle. When no counties are selected it reads "Showing all counties in California". When 1–3 counties are selected it lists them by name. When more than 3 are selected it shows the first 3 and "and N other(s)". It depends on `county_select` and `selected_counties_rv` and updates from both selection sources.
 
 **Map County Click Interaction:**
 
