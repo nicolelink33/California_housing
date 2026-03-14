@@ -1219,7 +1219,7 @@ def server(input, output, session):
             ax.set_axis_off()
             return fig
 
-        return create_distribution_plot(df, input.querychat_distribution_var(), processed_data)
+        return create_distribution_plot(df, input.querychat_distribution_var(), state_df)
     
     @render.ui
     def download_button_ui():
