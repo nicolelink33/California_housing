@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 import folium
+
+from utils import apply_filters
 from folium.plugins import MarkerCluster
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -693,23 +695,17 @@ def server(input, output, session):
     # Filter dataset
     @reactive.calc
     def filtered_data():
-        idx_house_val = processed_data.median_house_value.between(
-            left=input.house_val_slider()[0], right=input.house_val_slider()[1], inclusive="both"
-        )
-        idx_income = processed_data.median_income_usd.between(
-            left=input.income_slider()[0], right=input.income_slider()[1], inclusive="both"
-        )
-        idx_age = processed_data.housing_median_age.between(
-            left=input.age_slider()[0], right=input.age_slider()[1], inclusive="both"
-        )
-        idx_rooms = processed_data.total_rooms.between(
-            left=input.rooms_slider()[0], right=input.rooms_slider()[1], inclusive="both"
-        )
-        idx_beds = processed_data.total_bedrooms.between(
-            left=input.beds_slider()[0], right=input.beds_slider()[1], inclusive="both"
-        )
-        idx_pop = processed_data.population.between(
-            left=input.pop_slider()[0], right=input.pop_slider()[1], inclusive="both"
+        return apply_filters(
+            processed_data,
+            house_val_range=tuple(input.house_val_slider()),
+            income_range=tuple(input.income_slider()),
+            age_range=tuple(input.age_slider()),
+            rooms_range=tuple(input.rooms_slider()),
+            beds_range=tuple(input.beds_slider()),
+            pop_range=tuple(input.pop_slider()),
+            households_range=tuple(input.households_slider()),
+            ocean_proximity=list(input.ocean_checkbox()),
+            county_select=list(input.county_select() or []),
         )
         idx_households = processed_data.households.between(
             left=input.households_slider()[0], right=input.households_slider()[1], inclusive="both"
