@@ -550,9 +550,10 @@ app_ui = ui.page_fluid(
                         
                         # Distribution Plots
                         ui.card(
+                            ui.card_header("State vs Selected Data Distribution:"),
                             ui.input_select(
                                 id="distribution_var",
-                                label="Distribution:",
+                                label=None,
                                 choices={
                                     "median_house_value": "Median House Value",
                                     "median_income": "Median Income",
@@ -571,9 +572,10 @@ app_ui = ui.page_fluid(
 
                         # Comparison Scatterplot
                         ui.card(
+                            ui.card_header("Median House Value versus:"),
                             ui.input_select(
                                 id="comparison_var",
-                                label="Comparison:",
+                                label=None,
                                 choices={
                                     "median_income": "Median Income",
                                     #"housing_median_age": "House Age",
@@ -591,6 +593,7 @@ app_ui = ui.page_fluid(
 
                         # Ocean Proximity Boxplots
                         ui.card(
+                            ui.card_header("Median House Value by Ocean Proximity:"),
                             ui.output_plot("boxplot_proximity"),
                             max_height="300px",
                             class_="plot-card",
