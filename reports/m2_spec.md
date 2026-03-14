@@ -207,5 +207,5 @@ The testing suite documents expected behavior and makes it clear what breaks if 
 ## Section 6. UI & Plot Details
 
 - 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
-- A note at the top of the sidebar reads "All measures are aggregated at the census block level." to clarify that all filter metrics apply at the census block level and not the county or household level.
+- Each accordion panel header ("House Properties" and "Socio-economic Properties") contains a info ⓘ icon. Hovering over it displays a tooltip explaining that 'all measures are aggregated at the census block level'.
 - Rename 'Manual Filtering' tab to 'Dashboard'.
