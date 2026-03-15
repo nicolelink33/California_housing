@@ -323,7 +323,7 @@ app_ui = ui.page_fluid(
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
             background: #ffffff;
-            margin-bottom: 0.1rem;
+            margin-bottom: 1rem;
         }
         .querychat-sidebar {
             height: 1000px;
@@ -550,7 +550,7 @@ app_ui = ui.page_fluid(
                     # County banner — full width above all columns
                     ui.card(
                         ui.output_ui("county_banner"),
-                        class_="p-2",
+                        class_="p-2 mb-4",
                         max_height="50px",
                     ),
                     col_widths=12,
@@ -590,6 +590,7 @@ app_ui = ui.page_fluid(
                         ),
                         col_widths=12,
                         row_heights=["200px", "1fr"],
+                        gap="0.1rem",
                         class_="dashboard-panel",
                     ),
                     # Column 2
@@ -648,7 +649,8 @@ app_ui = ui.page_fluid(
                         width=1,
                         class_="dashboard-panel",
                     ),
-                    col_widths=[8, 4]
+                    col_widths=[8, 4],
+                    gap="1rem",
                 ),
                 style="display:flex; flex-direction:column; gap:0;",
                 
