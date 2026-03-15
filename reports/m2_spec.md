@@ -214,3 +214,4 @@ The testing suite documents expected behavior and makes it clear what breaks if 
 - 'Reset View' button (`reset_map_btn`) on the map resets the view after zooming without clearing selection.
 - Each accordion panel header ("House Properties" and "Socio-economic Properties") contains a info ⓘ icon. Hovering over it displays a tooltip explaining that 'all measures are aggregated at the census block level'.
 - Rename 'Manual Filtering' tab to 'Dashboard'.
+- Resize the three plots `distribution_plot`, `comparison_scatter` and `boxplot_proximity` in Manual Filtering Tab to 350px each.
