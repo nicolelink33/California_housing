@@ -76,7 +76,7 @@ Open http://127.0.0.1:8000 in your browser.
 Run all tests (unit + E2E) with:
 
 ```bash
-conda activate dsci-532-dashboard  # or california-housing
+conda activate dsci-532-dashboard  
 playwright install                 # one-time: download browser binaries
 pytest --base-url http://127.0.0.1:8765
 ```
