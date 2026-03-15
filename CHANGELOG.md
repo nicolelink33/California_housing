@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Set up duckdb/parquet/ibis functionality by [@nicolelink33](https://github.com/nicolelink33) in [#145](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/145)
 * Added error handling for querychat_geo_cluster_plot, querychat_median_house, querychat_median_income and querychat_distribution_plot in AI Chatbot tab by [@mdskwong](https://github.com/mdskwong) in [#148](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/148)
 * Reactive county banner, info icon in filters and renames manual filtering tab by [@sjbalagit](https://github.com/sjbalagit) in [#147](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/147)
+* Added 0.4.0 items to CHANGELOG by [@sjbalagit](https://github.com/sjbalagit) in [#152](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/152)
 
 ### Changed
 
