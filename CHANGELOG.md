@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - In the default opinionated view of the dashboard we filter the data to three ocean proximity categories and high median income values. If 'inland' and 'island' counties are selected on the map or 'select' drop down, it shows 'no data for current filters'. In this scenario, if all ocean proximity types and all median income values are enabled again, the map works as intended.
 
-### Release Highlight: [Name of your advanced feature]
+### Release Highlight: Component click event interaction
 
 We made the map reactive to user clicks. User can select one or multiple counties at a time and this updates the county banner at the top of the dashboard, the county selection drop down, the value boxes and plots. When a county is selected on the map, it is highlighted in a different color to distinguish from the unselected counties. An info icon, when hovered on, shows instructions on selection.
 
@@ -68,7 +68,7 @@ The default opinionated view (coastal proximity + high income filter) can cause 
 
 The filtered opinionated view is deviation from DSCI 531 best practices. While best practices suggest showing all data by default, this opinionated view was chosen to highlight the coastal premium story and guide users toward a meaningful starting point for exploration.
 
-We prioritized user-facing feedback items such axis formatting, chart titles, map reset, tab. We chose to de-prioritize or reject some fixes that felt not aligned with our goals. For example, we chose to not rearrange the layout of our dashboard into a Z layout, as we want the main statistics to be first, the map second, and the charts on the side to be supplementary. Full rationale is in [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121) and ### Changed above.
+We prioritized user-facing feedback items such axis formatting, chart titles, map reset, tab. We chose to de-prioritize or reject some fixes that felt not aligned with our goals. For example, we chose to not rearrange the layout of our dashboard into a Z layout, as we want the main statistics to be first, the map second, and the charts on the side to be supplementary. Full rationale is in [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121) and **Changed** above.
 
 The lecture on lazy loading and DuckDB/parquet was the most directly applicable — switching from pandas CSV loading to ibis + parquet required rethinking how filters are wired to the data layer. The instructor, TA and peer feedback from M3 also shaped our work significantly. We wish there had been more coverage of how to handle Shiny reactivity with ibis lazy expressions, as debugging the two-step `filtered_expr` → `filtered_data` pattern took meaningful time.
 
