@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Update App Specification for AI Chatbot Tab by [@mdskwong](https://github.com/mdskwong) in [#127](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/127)
 * Change titles for plots, add title to ocean plot, unify formatting by [@nicolelink33](https://github.com/nicolelink33) in [#144](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/144)
 * Resize plots area in Manual Filtering Tab by [@mdskwong](https://github.com/mdskwong) in [#150](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/150)
+* Update demo.gif by [@mdskwong](https://github.com/mdskwong) in [#153](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/153)
 - Addressed feedback items: 
    - Fail gracefully - nice error message in query chat if user requests data not in dataset (Item 1 in prioritization issue [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121)). [#148](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/148)
    - Formatting of the axis units on the Distribution plot - when the user selects House Age, the x axis units are still $0k (Item 2 in prioritization issue [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121)). [#133](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/133)
@@ -45,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Known Issues
 
 - In the default opinionated view of the dashboard we filter the data to three ocean proximity categories and high median income values. If 'inland' and 'island' counties are selected on the map or 'select' drop down, it shows 'no data for current filters'. In this scenario, if all ocean proximity types and all median income values are enabled again, the map works as intended.
+
+### Removed
+* Remove old_app.py by [@mdskwong](https://github.com/mdskwong) in [#156](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/156)
 
 ### Release Highlight: Component click event interaction
 
