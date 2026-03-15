@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-14
+
+### Added
+
+- <!-- New features, components, tests - one line each. Reference PRs where relevant (e.g. #12). -->
+* Added a button to the map to reset the zoom by [@AliBoloor](https://github.com/AliBoloor) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/135
+* Added tests by [@AliBoloor](https://github.com/AliBoloor) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/131
+* Advanced feature: select features on map and filter dashboard by [@sjbalagit](https://github.com/sjbalagit) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/137
+* Set up duckdb/parquet/ibis functionality by [@nicolelink33](https://github.com/nicolelink33) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/145
+* Added error handling for querychat_geo_cluster_plot, querychat_median_house, querychat_median_income and querychat_distribution_plot in AI Chatbot tab by [@mdskwong](https://github.com/mdskwong) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/148
+* Reactive county banner and renames manual filtering tab by [@sjbalagit](https://github.com/sjbalagit) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/147
+
+### Changed
+
+* Update CONTRIBUTING.md by [@nicolelink33](https://github.com/nicolelink33) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/126
+* Update App Specification for AI Chatbot Tab by [@mdskwong](https://github.com/mdskwong) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/127
+* Change titles for plots, add title to ocean plot, unify formatting by [@nicolelink33](https://github.com/nicolelink33) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/144
+* Resize plots area in Manual Filtering Tab by [@mdskwong](https://github.com/mdskwong) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/150
+* Feedback items:
+  
+  - Addressed: 
+- <!-- Spec or design deviations, and motivation. -->
+- <!-- Feedback items you addressed: "Addressed: <item description> (#<prioritization issue>) via #<PR>" -->
+
+### Fixed
+
+* Addresses milestone 3 known issue: `county_name_alt` column was removed from the dataframe so that the LLM querychat does not confuse it for `county` column by [@nicolelink33](https://github.com/nicolelink33) in [#145](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/145)
+* Corrects the formatting on the x-axis of Distribution and Comparison … by [@AliBoloor](https://github.com/AliBoloor) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/133
+* Fixes the failing tests by [@AliBoloor](https://github.com/AliBoloor) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/146
+* Changes the tests to cover recent changes to the code by [@AliBoloor](https://github.com/AliBoloor) in https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/149
+
+- **Feedback prioritization issue link:** [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121)
+
+### Known Issues
+
+- In the default opinionated view of the dashboard we filter the data to three ocean proximity categories and high median income values. If 'inland' and 'island' counties are selected on the map or 'select' drop down, it shows 'no data for current filters'. In this scenario, if all ocean proximity types and all median income values are enabled again, the map works as intended.
+
+### Release Highlight: [Name of your advanced feature]
+
+We made the map reactive to user clicks. User can select one or multiple counties at a time and this updates the county banner at the top of the dashboard, the county selection drop down, the value boxes and plots. When a county is selected on the map, it is highlighted in a different color to distinguish from the unselected counties. An info icon, when hovered on, shows instructions on selection.
+
+- **Option chosen:** D
+- **PR:** [#137](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/137)
+- **Why this option over the others:** Having a reactive map is useful for users as we are working with spatial distribution of block level housing data from 1990s and the dashboard is intended to facilitate this exploration. User can click on a county or multiple counties on the map and the value boxes, county banner and plots update based on the counties selected. Given our nature of data, this feature seemed a better fit over the other features.
+- **Feature prioritization issue link:** [#119](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/119), [#121](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/issues/121)
+
+### Collaboration
+
+<!-- Summary of workflow or collaboration improvements made since M3. -->
+
+- **CONTRIBUTING.md:** [#126](https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/pull/126)
+- **M3 retrospective:** We looked into diver 
+- **M4:** <!-- What you tried or improved this milestone. -->
+
+### Reflection
+
+<!-- Standard (see General Guidelines): what the dashboard does well, current limitations,
+     any intentional deviations from DSCI 531 visualization best practices. -->
+
+<!-- Trade-offs: one sentence on feedback prioritization - full rationale is in #<issue> and ### Changed above. -->
+
+<!-- Most useful: which lecture, material, or feedback shaped your work most this milestone,
+     and anything you wish had been covered. -->
+
+
 ## [0.3.0] - 2026-03-08
 
 ### Added
@@ -116,6 +181,7 @@ Our final layout matches our M1 sketch and M2 spec quite well. A few color choic
 
 ---
 
+[0.4.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.4.0
 [0.3.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.3.0
 [0.2.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.2.0
 [0.1.0]: https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing/releases/tag/v0.1.0
