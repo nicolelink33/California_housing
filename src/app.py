@@ -610,7 +610,7 @@ app_ui = ui.page_fluid(
                                 selected="median_house_value",
                             ),
                             ui.output_plot("distribution_plot"),
-                            max_height="300px",
+                            max_height="350px",
                             class_="plot-card",
                         ),
 
@@ -631,7 +631,7 @@ app_ui = ui.page_fluid(
                                 selected="median_income",
                             ),
                             ui.output_plot("comparison_scatter"),
-                            max_height="300px",
+                            max_height="350px",
                             class_="plot-card",
                         ),
 
@@ -639,11 +639,10 @@ app_ui = ui.page_fluid(
                         ui.card(
                             ui.card_header("Median House Value by Ocean Proximity:"),
                             ui.output_plot("boxplot_proximity"),
-                            max_height="300px",
+                            max_height="350px",
                             class_="plot-card",
                         ),
                         width=1,
-                        #min_height="900px",
                         class_="dashboard-panel",
                     ),
                     col_widths=[8, 4]
