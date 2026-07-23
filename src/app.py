@@ -82,6 +82,11 @@ Households_max = int(parquet.households.max().to_pandas())
 with open("data/raw/cal_counties.geojson") as f:
     counties_geojson = json.load(f)
 
+
+# drop county_name_alt column
+if "county_name_alt" in state_df.columns:
+    state_df = state_df.drop(columns=["county_name_alt"])
+
 # Set up querychat
 qc = querychat.QueryChat(
     state_df,
@@ -429,7 +434,7 @@ app_ui = ui.page_fluid(
                     ui.accordion(
                         ui.accordion_panel(
                             ui.HTML("""
-                                House Properties
+                                City Block Properties
                                 <span style="
                                     cursor:default; margin-left:6px;
                                     display:inline-flex; align-items:center; justify-content:center;
@@ -451,7 +456,7 @@ app_ui = ui.page_fluid(
                             ),
                             ui.input_slider(
                                 id="age_slider",
-                                label="House age:",
+                                label="Median house age:",
                                 min=Age_min,
                                 max=Age_max,
                                 value=[Age_min, Age_max],
@@ -497,7 +502,7 @@ app_ui = ui.page_fluid(
                         ui.accordion_panel(
 
                             ui.HTML("""
-                                Socio-economic Properties
+                                City Block Socio-economic Properties
                                 <span style="
                                     cursor:default; margin-left:6px;
                                     display:inline-flex; align-items:center; justify-content:center;
@@ -520,7 +525,7 @@ app_ui = ui.page_fluid(
                             ),
                             ui.input_slider(
                                 id="pop_slider",
-                                label="Population:",
+                                label="Total population:",
                                 min=Pop_min,
                                 max=Pop_max,
                                 value=[Pop_min, Pop_max],
@@ -528,7 +533,7 @@ app_ui = ui.page_fluid(
                             ),
                             ui.input_slider(
                                 id="households_slider",
-                                label="Households:",
+                                label="Number of households:",
                                 min=Households_min,
                                 max=Households_max,
                                 value=[Households_min, Households_max],
@@ -661,7 +666,7 @@ app_ui = ui.page_fluid(
             ui.a("GitHub Repository",
                 href="https://github.com/UBC-MDS/DSCI-532_2026_5_california_housing",
                 target="_blank"),
-            "  |  Last updated: Feb 28, 2026",
+            "  |  Last updated: July 23, 2026",
             class_="footer"
             )
         ),
@@ -1241,7 +1246,7 @@ def server(input, output, session):
 
         bp = ax.boxplot(
             data,
-            labels=display_labels,
+            tick_labels=display_labels,
             patch_artist=True,
             showfliers=False,
             medianprops={"color": "#222222", "linewidth": 1.5},
