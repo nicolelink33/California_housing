@@ -552,16 +552,6 @@ app_ui = ui.page_fluid(
                 # Page configuration
 
                 ui.layout_columns(
-                    # County banner — full width above all columns
-                    ui.card(
-                        ui.output_ui("county_banner"),
-                        class_="p-2 mb-4",
-                        max_height="50px",
-                    ),
-                    col_widths=12,
-                ),
-
-                ui.layout_columns(
                     
                     # Column 1
                     ui.layout_columns(
