@@ -54,7 +54,6 @@
 
 ## Section 3: Reactivity Diagram
 ### 3.1 Manual Filtering Tab
-````markdown
 ```mermaid
 flowchart TD
   RB[/reset_button/] -- updates --> A & B & C & D & E & F & G & H & I
@@ -89,11 +88,9 @@ flowchart TD
   B --> county_banner
   M --> P5
 ```
-````
-![Reactivity Diagram](../img/reactivity.png)
+
 
 ### 3.2 AI Chatbot Tab
-````markdown
 ```mermaid
 flowchart TD
   User([User Prompt]) --> QC[/querychat-sidebar/]
@@ -112,8 +109,7 @@ flowchart TD
   DV[/querychat_distribution_var/] --> P6([querychat_distribution_plot])
   AIDF --> P6
 ```
-````
-![Reactivity Diagram](../img/ai_reactivity.png)
+
 
 ## Section 4: Calculation Details
 
