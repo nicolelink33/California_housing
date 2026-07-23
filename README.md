@@ -4,9 +4,8 @@ An interactive dashboard for exploring the geographic and socioeconomic drivers 
 
 ![Dashboard demo](img/demo.gif)
 
-**Live dashboards**
-- **Stable:** https://019c91e4-9ae2-9f80-d307-5b31052f2781.share.connect.posit.cloud/
-- **Preview:** https://019c91ed-c71c-d6a8-76fc-1417d4c15a89.share.connect.posit.cloud/
+**Live dashboard**
+https://019f90ae-c8d7-5539-4d94-38f87f021945.share.connect.posit.cloud/
 
 
 ## Why this dashboard exists (for users)
@@ -101,5 +100,5 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or submit
 
 ## Attribution
 
-Generative AI tools (Google Gemini, OpenAI ChatGPT, and GitHub Copilot) were used to assist with code generation and documentation drafting. All generated content was reviewed and edited by the authors to ensure accuracy and quality.
+Generative AI tools (Google Gemini, OpenAI ChatGPT, and GitHub Copilot) were used to assist with code debugging. All generated content was reviewed and edited by the authors to ensure accuracy and quality.
 
