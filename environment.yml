@@ -1,4 +1,4 @@
-name: dsci-532-dashboard
+name: housing-dashboard
 channels:
   - conda-forge
 dependencies:
